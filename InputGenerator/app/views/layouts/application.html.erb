@@ -17,6 +17,13 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="page-wrapper chiller-theme toggled sidebar-bg">
+      
+      <%= render 'layouts/navbar'%>
+      <main class="page-content">
+        <%= yield %>
+      </main>
+
+    </div>
   </body>
 </html>
