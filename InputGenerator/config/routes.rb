@@ -3,4 +3,8 @@ Rails.application.routes.draw do
 
   root :to => "home#index"
 
+  get 'test', to: 'test#index'
+
+  get 'templates', to: 'templates#index'
+
 end

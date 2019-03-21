@@ -4,7 +4,8 @@
 <nav id="sidebar" class="sidebar-wrapper">
   <div class="sidebar-content">
     <div class="sidebar-brand">
-      <a href="#">input generator</a>
+      <%= link_to 'input generator', controller: "home", action: "index" %>
+      
       <div id="close-sidebar">
         <i class="fas fa-times"></i>
       </div>
@@ -29,16 +30,16 @@
           <span>General</span>
         </li>
         <li>
-          <a href="#">
+          <%= link_to 'test'  do%>
             <i class="fas fa-vial"></i>
             <span>Test</span>
-          </a>
+          <% end %>
         </li>
         <li>
-          <a href="#">
+          <%= link_to 'templates' do %>
             <i class="fas fa-archive"></i>
             <span>Saved Templates</span>
-          </a>
+          <% end %>
         </li>
 
       </ul>
