@@ -15,5 +15,4 @@
 //= require turbolinks
 //= require_tree .
 //= require jsoneditor
-
-  
+//= require axios/dist/axios

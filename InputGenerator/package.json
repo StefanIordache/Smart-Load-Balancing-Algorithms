@@ -1,7 +1,14 @@
 {
   "name": "InputGenerator",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "axios": "^0.18.0",
+    "browserify": "^16.2.3",
+    "browserify-incremental": "^3.0.1",
+    "coffeeify": "^0.6",
+    "jquery-ui-slider-pips": "0.0.1-security",
+    "sweetalert": "^2.1.2"
+  },
   "devDependencies": {
     "bootstrap": "^4.3.1",
     "dom-factory": "1.0.0",
