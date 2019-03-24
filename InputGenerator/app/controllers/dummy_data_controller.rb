@@ -2,8 +2,8 @@ class DummyDataController < ApplicationController
 
   include DummyDataHelper
 
-  def systems
-    render json: get_dummy_systems_json
+  def cluster
+    render json: get_dummy_cluster_json
   end
 
 end
