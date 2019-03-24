@@ -16,6 +16,8 @@ module InputGenerator
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
 
+    config.serve_static_assets = true
+
     config.browserify_rails.commandline_options = '-t coffeeify --extension=".js.coffee"'
 
     # Add node_modules/sweetalert/dist to sprocket's assets load path

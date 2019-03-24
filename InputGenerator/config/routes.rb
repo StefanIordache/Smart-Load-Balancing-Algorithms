@@ -4,6 +4,9 @@ Rails.application.routes.draw do
   root :to => "home#index"
 
   get 'test', to: 'test#index'
+  post 'simulate', to: 'test#simulate'
+
+  get 'dummy/systems', to: 'dummy_data#systems'
 
   get 'templates', to: 'templates#index'
 

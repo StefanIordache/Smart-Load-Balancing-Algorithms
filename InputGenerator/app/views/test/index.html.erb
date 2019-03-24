@@ -1,65 +1,89 @@
 <div class="row justify-content-md-center">
+  <div class="row">
+    <h1 class="p-3 pb-5">Generate Input and Test Load Balancing Algorithms</h1>
+  </div>
+  <div class="row col col-lg-12">
+    <div class="col col-lg-5">
+      <label for="label-systems" class="pb-3">
+        <h4>
+          Architecture Description
+        </h4>
+      </label>
 
-    <div class="row">
-        <h1 class="p-3 pb-5">Generate Input and Test Load Balancing Algorithms</h1>
+      <div
+        id="jsoneditor-systems"
+        class="pt-3 pb-4"
+        style="width: 100%; height: 100%;"
+      ></div>
     </div>
-    <div class="col col-lg-8">
+    <div class="col col-lg-1"></div>
+    <div class="col col-lg-6">
+      <label for="label-tasks" class="pb-3">
+        <h4>
+          Task Builder
+        </h4>
+      </label>
 
-        <label for="label-input-type">Input Mode</label>
-
-        <div class="form-check pb-2">
-            <input class="form-check-input" type="radio" name="radio-input-type" id="radio-input-type-1"
-                value="option-json" checked>
-            <label class="form-check-label" for="label-radio-input-1">
-                Use JSON Format
-            </label>
-        </div>
-        <div class="form-check pb-2">
-            <input class="form-check-input" type="radio" name="radio-input-type" id="radio-input-type-2"
-                value="option-gui" disabled>
-            <label class="form-check-label" for="label-radio-input-2">
-                Use Graphical Interface
-            </label>
-        </div>
-
-        <div id="mode-json" style="width: 100%; height: 100%;">
-            <div id="jsoneditor" class="pt-3 pb-4" style="width: 100%; height: 100%;"></div>
-        </div>
-
-        <div id="mode-gui" hidden>
-            Graphical Interface
-        </div>
-
+      <div
+        id="jsoneditor-tasks"
+        class="pt-3 pb-4"
+        style="width: 100%; height: 100%;"
+      ></div>
+    </div>
+  </div>
+  <!--<div class="row">
         <div class="row d-flex justify-content-between">
             <div>
-                <button id="button-run" type="button" class="btn btn-outline-primary btn-lg float-left">Start Simulation</button>
+                <button id="button-run" type="button" class="btn btn-outline-primary btn-lg float-left">Start
+                    Simulation</button>
             </div>
             <div>
-                <button id="button-save" type="button" class="btn btn-outline-info btn-lg float-right">Save Template</button>
+                <button id="button-save" type="button" class="btn btn-outline-info btn-lg float-right">Save
+                    Template</button>
             </div>
         </div>
-
-    </div>
-
+    </div>-->
 </div>
 
-
 <script>
-    
-    var container = document.getElementById("jsoneditor");
-    var options = {
-        mode: 'code'
-    };
-    var editor = new JSONEditor(container, options);
+  let containerSystems = document.getElementById("jsoneditor-systems");
+  let contatinerTasks = document.getElementById("jsoneditor-tasks");
+  let options = {
+    mode: "code"
+  };
+  let editorSystems = new JSONEditor(containerSystems, options);
+  let editorTasks = new JSONEditor(contatinerTasks, options);
 
-    $('#button-run').click( function() {
-        var inputJson = editor.get();
-        if (jQuery.isEmptyObject(inputJson)) {
-            swal({
-                icon: "error",
-                text: "Can't run a simulation without input."
-            })
-        }
+  $(function() {
+    const dummySystemsJsonUrl = "/dummy/systems";
+    axios.get(dummySystemsJsonUrl).then(function(response) {
+      console.log(response);
+      editorSystems.set(response.data);
     });
+  });
 
+  $("#button-run").click(function() {
+    var inputJson = editorSystems.get();
+    if (jQuery.isEmptyObject(inputJson)) {
+      swal({
+        icon: "error",
+        text: "Can't run a simulation without input."
+      });
+    } else {
+      const postUrl = "/simulate";
+      axios
+        .post(postUrl, {
+          payload: inputJson
+        })
+        .then(function(response) {
+          console.log(response);
+        })
+        .catch(function(error) {
+          swal({
+            icon: "error",
+            text: "Error!"
+          });
+        });
+    }
+  });
 </script>
