@@ -1,6 +1,17 @@
 {
     "scenario": "random",
     "parameters": {
-
+        "usage": {
+            "min_cpu_units": 20,
+            "max_cpu_units": 30
+        },
+        "timeline": {
+            "distribution": 10,
+            "generation_time": 200
+        },
+        "priority": {
+            "type": "constant",
+            "value": 1
+        }
     }
 }
