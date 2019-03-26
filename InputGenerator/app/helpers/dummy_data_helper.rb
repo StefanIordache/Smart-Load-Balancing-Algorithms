@@ -6,4 +6,10 @@ module DummyDataHelper
 
     return data
   end
+
+  def get_dummy_jobs_json
+    data = File.read(Rails.root.join("public/json_files/dummy_jobs.json"))
+
+    return data
+  end
 end

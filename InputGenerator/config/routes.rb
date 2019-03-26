@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   post 'simulate', to: 'test#simulate'
 
   get 'dummy/cluster', to: 'dummy_data#cluster'
+  get 'dummy/jobs', to: 'dummy_data#jobs'
 
   get 'templates', to: 'templates#index'
 

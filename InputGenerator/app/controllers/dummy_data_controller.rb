@@ -6,4 +6,8 @@ class DummyDataController < ApplicationController
     render json: get_dummy_cluster_json
   end
 
+  def jobs
+    render json: get_dummy_jobs_json
+  end
+
 end
