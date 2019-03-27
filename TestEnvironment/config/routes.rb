@@ -3,9 +3,6 @@ Rails.application.routes.draw do
 
   root :to => "home#index"
 
-  get 'test', to: 'test#index'
-  post 'simulate', to: 'test#simulate'
-
   get 'algorithm_simulator', to: 'algorithm_simulator#index'
   post 'simulate', to: 'algorithm_simulator#simulate'
 
