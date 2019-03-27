@@ -1,5 +1,4 @@
-class TestController < ApplicationController
-
+class AlgorithmSimulatorController < ApplicationController
     protect_from_forgery with: :null_session
 
     def index
@@ -23,5 +22,4 @@ class TestController < ApplicationController
         #   end
 
     end
-
 end
