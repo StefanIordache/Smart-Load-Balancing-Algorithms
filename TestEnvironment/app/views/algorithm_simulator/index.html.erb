@@ -1,11 +1,18 @@
 <div class="row justify-content-md-center">
-    <div class="row">
+    <div class="row col col-lg-12 col-md-12">
         <h1 class="p-3 pb-5">Generate Input and Test Load Balancing Algorithms</h1>
     </div>
-    <br>
+    <div class="row col col-lg-12 col-md-12 pb-3">
+      <div class="col col-lg-3 col-md-3">
+        <button type="button" class="btn btn-outline-primary btn-lg" id="button-start-simulation">Start Simulation</button>
+      </div>
+      <div class="col col-lg-3 col-md-3"></div>
+      <div class="col col-lg-3 col-md-3"></div>
+      <div class="col col-lg-3 col-md-3"></div>
+    </div>
     <div class="row col col-lg-12 col-md-12">
         <div class="col col-lg-6 col-md-6">
-            <label for="label-cluster" class="pb-3">
+            <label for="label-cluster">
                 <h4>
                     Cluster Description
                 </h4>
@@ -15,7 +22,7 @@
         </div>
 
         <div class="col col-lg-6 col-md-6">
-            <label for="label-jobs" class="pb-3">
+            <label for="label-jobs">
                 <h4>
                     Jobs Builder
                 </h4>
@@ -49,18 +56,26 @@
         });
     });
 
-    $("#button-run").click(function () {
-        var inputJson = editorCluster.get();
-        if (jQuery.isEmptyObject(inputJson)) {
+    $("#button-start-simulation").click(function () {
+        let clusterJson = editorCluster.get();
+        let jobsJson = editorJobs.get();
+        if (jQuery.isEmptyObject(clusterJson)) {
             swal({
                 icon: "error",
-                text: "Can't run a simulation without input."
+                text: "Please fill in cluster details."
+            });
+        }
+        else if (jQuery.isEmptyObject(jobsJson)) {
+            swal({
+                icon: "error",
+                text: "Please fill in task/job simulation details."
             });
         } else {
             const postUrl = "/simulate";
             axios
                 .post(postUrl, {
-                    payload: inputJson
+                    payload_cluster: clusterJson,
+                    payload_jobs: jobsJson
                 })
                 .then(function (response) {
                     console.log(response);
