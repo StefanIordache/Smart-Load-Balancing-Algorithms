@@ -1,6 +1,8 @@
 class AlgorithmSimulatorController < ApplicationController
   protect_from_forgery with: :null_session
 
+  include AlgorithmSimulatorHelper
+
   def index
   end
 
@@ -8,6 +10,11 @@ class AlgorithmSimulatorController < ApplicationController
     info_cluster = params[:payload_cluster]
     info_jobs = params[:payload_jobs]
 
+    run_simulation_script info_cluster, info_jobs, File.expand_path('../LoadBalancing/simulator.py')
+
+
+
+=begin
     simulator = IO.popen(['python', File.expand_path('../LoadBalancing/simulator.py')], mode='r+')
     simulator.write info_cluster
     result_cluster = simulator.readline
@@ -23,6 +30,8 @@ class AlgorithmSimulatorController < ApplicationController
       logger.info("cluster not ok")
     end
     simulator.close_read
+=end
+
 
 
 
