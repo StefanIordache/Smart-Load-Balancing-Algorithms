@@ -8,6 +8,7 @@ module AlgorithmSimulatorHelper
 
   def run_simulation_script(info_cluster, info_jobs, script_path)
 
+=begin
     simulator = IO.popen(['python', script_path], mode = 'r+')
 
     simulator.puts info_cluster
@@ -19,25 +20,27 @@ module AlgorithmSimulatorHelper
 
     line = simulator.readline
     puts line
+=end
 
-    server = TCPServer.new 5163
+    server = TCPServer.new 3001
 
-    loop do
       Thread.start(server.accept) do |client|
 
         client.puts info_cluster
+        client.flush
 
-        line = server.readline
+        line = client.recv(1024)
         puts line
 
         client.puts info_jobs
+        client.flush
 
-        line = server.readline
+        line = client.recv(1024)
         puts line
 
         client.close
+        break
       end
-    end
 
     server.close
 

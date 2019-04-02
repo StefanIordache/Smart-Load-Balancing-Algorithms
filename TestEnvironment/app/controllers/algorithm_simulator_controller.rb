@@ -10,9 +10,6 @@ class AlgorithmSimulatorController < ApplicationController
     info_cluster = params[:payload_cluster].to_json
     info_jobs = params[:payload_jobs].to_json
 
-    puts info_jobs
-    puts info_cluster
-
     run_simulation_script info_cluster, info_jobs, File.expand_path('../LoadBalancing/simulator.py')
 
   end
