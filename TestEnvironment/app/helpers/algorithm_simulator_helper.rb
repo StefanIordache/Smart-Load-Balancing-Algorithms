@@ -8,20 +8,38 @@ module AlgorithmSimulatorHelper
 
   def run_simulation_script(info_cluster, info_jobs, script_path)
 
-    puts script_path
+    simulator = IO.popen(['python', script_path], mode = 'r+')
 
-    slave = IO.popen(['python', script_path], mode = 'r+')
+    simulator.puts info_cluster
 
-    slave.puts info_cluster
-
-    line = slave.readline
+    line = simulator.readline
     puts line
 
-    slave.puts info_jobs
+    simulator.puts info_jobs
 
-    line = slave.readline
+    line = simulator.readline
     puts line
 
+    server = TCPServer.new 5163
+
+    loop do
+      Thread.start(server.accept) do |client|
+
+        client.puts info_cluster
+
+        line = server.readline
+        puts line
+
+        client.puts info_jobs
+
+        line = server.readline
+        puts line
+
+        client.close
+      end
+    end
+
+    server.close
 
   end
 
