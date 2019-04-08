@@ -6,21 +6,10 @@ module AlgorithmSimulatorHelper
   require 'io/console'
   require 'socket'
 
-  def run_simulation_script(info_cluster, info_jobs, script_path)
+  def run_simulation_script(info_cluster, info_jobs)
 
-=begin
-    simulator = IO.popen(['python', script_path], mode = 'r+')
 
-    simulator.puts info_cluster
-
-    line = simulator.readline
-    puts line
-
-    simulator.puts info_jobs
-
-    line = simulator.readline
-    puts line
-=end
+    pid = Process.spawn "bash " + File.expand_path('../Scripts/simulator.sh')
 
     server = TCPServer.new 3001
 

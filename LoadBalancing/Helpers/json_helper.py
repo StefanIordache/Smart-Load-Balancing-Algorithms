@@ -1,7 +1,7 @@
 import json
 from collections import namedtuple
 
-from Models.system import*
+from Models.system import *
 
 
 def unpack_cluster_json(json_cluster):
