@@ -8,7 +8,7 @@ def create_directory(path):
         print("File/Folder Exists - " + path)
 
 
-def create_file(path, extension):
+def create_file(path, extension=""):
     f = open(path + extension, "w+")
     f.close()
 

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from Models.job import *
 from Helpers.io_helper import *
+from Helpers.random_helper import *
 
 
 def generate_jobs(json_jobs):
@@ -35,22 +36,46 @@ def random_scenario(params):
     batches = int(generation_time / 10)
 
     for batch in range(batches):
-        batch_storage_path = temp_location + "/" + str(batch * 10) + "-" + str((batch + 1) * 10), ".json"
+        batch_storage_path = temp_location + "/" + str(batch * 10) + "-" + str((batch + 1) * 10) + ".json"
         create_file(batch_storage_path)
 
-        batch_content = generate_10_sec_batch(batch, params['parameters'])
+        batch_content = generate_10_seconds_batch(batch, params)
+
+        with open(batch_storage_path, 'w') as outfile:
+            json.dump(batch_content, outfile, indent=4)
 
     if batches * 10 < generation_time:
-        f = open(temp_location + "/" + str(batches * 10) + "-" + str(generation_time) + ".json", "w+")
-        f.close()
+        batch_storage_path = temp_location + "/" + str(batches * 10) + "-" + str(generation_time) + ".json"
+        create_file(batch_storage_path)
+
+        batch_content = []
+
+        for sec in range(batches * 10, generation_time):
+            batch_content.extend(generate_1_second_batch(sec, params))
+
+        with open(batch_storage_path, 'w') as outfile:
+            json.dump(batch_content, outfile, indent=4)
+
         batches = batches + 1
 
     return batches
 
 
-def generate_10_sec_batch(batch_index, params):
-    return 1
+def generate_10_seconds_batch(batch_index, params):
+    batch_content = []
+
+    for sec in range(10):
+        batch_content.extend(generate_1_second_batch(batch_index * 10 + sec, params))
+
+    return batch_content
 
 
-def generate_1_sec_batch(index, params):
-    return 1
+def generate_1_second_batch(second, params):
+    batch_content = []
+
+    distribution = int(params['timeline']['distribution'])
+
+    for job in range(distribution):
+        batch_content.append(random_job(second, params))
+
+    return batch_content
