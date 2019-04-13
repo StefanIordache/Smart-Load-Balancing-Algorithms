@@ -48,6 +48,12 @@
   </div>
 </div>
 
+<div id="loading-screen-animation" style="display: none">
+  <canvas id="c"></canvas>
+  <div class="info">Click to add gravity point.</div>
+</div>
+
+
 <script>
     let containerCluster = document.getElementById("jsoneditor-cluster");
     let contatinerJobs = document.getElementById("jsoneditor-jobs");
@@ -70,10 +76,30 @@
         });
     });
 
+    function callSimulation(url, clusterJson, jobsJson, selectedAlgorithm) {
+        return axios
+            .post(url, {
+                payload_cluster: clusterJson,
+                payload_jobs: jobsJson,
+                simulated_algorithm: selectedAlgorithm
+            })
+            .then(function (response) {
+                console.log(response);
+                // stopLoadingScreenAnimation();
+            })
+            .catch(function (error) {
+                // stopLoadingScreenAnimation();
+                swal({
+                    icon: "error",
+                    text: "Error!"
+                });
+            });
+    }
+
     $("#button-start-simulation").click(function () {
         let clusterJson = editorCluster.get();
         let jobsJson = editorJobs.get();
-        let selected_algorithm =  $("#selector_algorithm :selected").val();
+        let selectedAlgorithm = $("#selector_algorithm :selected").val();
 
         if (jQuery.isEmptyObject(clusterJson)) {
             swal({
@@ -85,29 +111,21 @@
                 icon: "error",
                 text: "Please fill in task/job simulation details."
             });
-        } else if (selected_algorithm === undefined || selected_algorithm === "") {
+        } else if (selectedAlgorithm === undefined || selectedAlgorithm === "") {
             swal({
                 icon: "error",
                 text: "Please selected one algorithm that should be tested."
             });
-        }
-        else {
+        } else {
             const postUrl = "/simulate";
-            axios
-                .post(postUrl, {
-                    payload_cluster: clusterJson,
-                    payload_jobs: jobsJson,
-                    simulated_algorithm: selected_algorithm
-                })
-                .then(function (response) {
-                    console.log(response);
-                })
-                .catch(function (error) {
-                    swal({
-                        icon: "error",
-                        text: "Error!"
-                    });
-                });
+            startLoadingScreenAnimation();
+            
+            callSimulation(postUrl, clusterJson, jobsJson, selectedAlgorithm).then(function (response) {
+                stopLoadingScreenAnimation();
+            }).catch(function (response) {
+                stopLoadingScreenAnimation();
+            });
+
         }
     });
 </script>

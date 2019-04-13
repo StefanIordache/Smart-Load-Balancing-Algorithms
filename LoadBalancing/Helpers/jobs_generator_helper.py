@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from Models.job import *
+from Helpers.simulation_helper import *
 from Helpers.io_helper import *
 from Helpers.random_helper import *
 
@@ -15,7 +16,8 @@ def generate_jobs(json_jobs):
     print(loaded_json)
 
     if loaded_json['scenario'] == 'random':
-        return random_scenario(loaded_json['parameters'])
+        number_of_batches, temp_location = random_scenario(loaded_json['parameters'])
+        return number_of_batches, temp_location, loaded_json['parameters']
     else:
         print('Invalid scenario')
 
@@ -33,10 +35,10 @@ def random_scenario(params):
 
     generation_time = int(params['timeline']['generation_time'])
 
-    batches = int(generation_time / 10)
+    number_of_batches = int(generation_time / 10)
 
-    for batch in range(batches):
-        batch_storage_path = temp_location + "/" + str(batch * 10) + "-" + str((batch + 1) * 10) + ".json"
+    for batch in range(number_of_batches):
+        batch_storage_path = temp_location + "/" + str(batch) + ".json"
         create_file(batch_storage_path)
 
         batch_content = generate_10_seconds_batch(batch, params)
@@ -44,21 +46,21 @@ def random_scenario(params):
         with open(batch_storage_path, 'w') as outfile:
             json.dump(batch_content, outfile, indent=4)
 
-    if batches * 10 < generation_time:
-        batch_storage_path = temp_location + "/" + str(batches * 10) + "-" + str(generation_time) + ".json"
+    if number_of_batches * 10 < generation_time:
+        batch_storage_path = temp_location + "/" + str(number_of_batches) + ".json"
         create_file(batch_storage_path)
 
         batch_content = []
 
-        for sec in range(batches * 10, generation_time):
+        for sec in range(number_of_batches * 10, generation_time):
             batch_content.extend(generate_1_second_batch(sec, params))
 
         with open(batch_storage_path, 'w') as outfile:
             json.dump(batch_content, outfile, indent=4)
 
-        batches = batches + 1
+        number_of_batches = number_of_batches + 1
 
-    return batches, temp_location
+    return number_of_batches, temp_location
 
 
 def generate_10_seconds_batch(batch_index, params):

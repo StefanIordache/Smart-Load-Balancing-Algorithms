@@ -6,6 +6,7 @@ import socket
 from Models.system import *
 from Helpers.json_helper import *
 from Helpers.jobs_generator_helper import *
+from Helpers.simulation_helper import *
 
 
 if __name__ == "__main__":
@@ -28,19 +29,27 @@ if __name__ == "__main__":
     while True:
         json_cluster = sock.recv(1024).decode()
 
-        systems = unpack_cluster_json(json_cluster)
+        systems = unpack_cluster(json_cluster)
 
         sock.sendall("OK_CLUSTER".encode())
 
         json_jobs = sock.recv(1024).decode()
 
-        batches_counter, temp_location = generate_jobs(json_jobs)
+        number_of_batches, temp_location, simulation_params = generate_jobs(json_jobs)
 
         sock.sendall("OK_JOBS".encode())
 
         simulated_algorithm = sock.recv(1024).decode()
+        simulated_algorithm = simulated_algorithm.rstrip()
 
         sock.sendall("OK_ALGORITHM".encode())
+
+        start_simulation(simulated_algorithm, systems, temp_location, number_of_batches, simulation_params)
+
+        sock.sendall("FINISHED".encode())
+        sock.sendall("NO ERRORS".encode())
+
+        print("finished")
 
         break
 

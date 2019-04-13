@@ -4,7 +4,7 @@ from collections import namedtuple
 from Models.system import *
 
 
-def unpack_cluster_json(json_cluster):
+def unpack_cluster(json_cluster):
     loaded_json = json.loads(json_cluster)
 
     systems = []
@@ -14,3 +14,17 @@ def unpack_cluster_json(json_cluster):
         systems.append(system)
 
     return systems
+
+
+def load_jobs_batch(file_location):
+    batch = []
+
+    with open(file_location) as json_file:
+        data = json.load(json_file)
+
+        for item in data:
+            job = namedtuple("Job", item.keys())(*item.values())
+            batch.append(job)
+
+    return batch
+

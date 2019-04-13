@@ -5,7 +5,7 @@ from Models.system import *
 
 
 def random_job(second, params):
-    job = Job(second + round(random.random(), 2),
+    job = Job(round(second + random.random(), 2),
               round(random.uniform(float(params['execution']['min']),
                                    float(params['execution']['max'])),
                     2),

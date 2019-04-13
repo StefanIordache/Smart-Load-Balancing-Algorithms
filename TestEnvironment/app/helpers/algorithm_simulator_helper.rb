@@ -8,12 +8,12 @@ module AlgorithmSimulatorHelper
 
   def run_simulation_script(info_cluster, info_jobs, simulated_algorithm)
 
+    begin
+      pid = Process.spawn "bash " + File.expand_path('../Scripts/simulator.sh')
 
-    pid = Process.spawn "bash " + File.expand_path('../Scripts/simulator.sh')
+      server = TCPServer.new 3001
 
-    server = TCPServer.new 3001
-
-      Thread.start(server.accept) do |client|
+      computation = Thread.start(server.accept) do |client|
 
         client.puts info_cluster
         client.flush
@@ -33,11 +33,24 @@ module AlgorithmSimulatorHelper
         line = client.recv(1024)
         puts line
 
+        line = client.recv(1024)
+        puts line
+
+        line = client.recv(1024)
+        puts line
+
         client.close
-        break
+
       end
 
-    server.close
+      computation.join
+
+      server.close
+    rescue LocalJumpError
+      puts "salvarea"
+    rescue
+      puts "ultima salvare"
+    end
 
   end
 

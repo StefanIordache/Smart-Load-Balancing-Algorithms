@@ -1,11 +1,11 @@
-<a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
+<a id="show-sidebar" class="btn btn-sm btn-dark" style="z-index: 9999" href="#">
   <i class="fas fa-bars"></i>
 </a>
 <nav id="sidebar" class="sidebar-wrapper">
   <div class="sidebar-content">
     <div class="sidebar-brand">
       <%= link_to 'load balancing algorithms', controller: "home", action: "index" %>
-      
+
       <div id="close-sidebar">
         <i class="fas fa-times"></i>
       </div>
@@ -30,7 +30,7 @@
           <span>General</span>
         </li>
         <li>
-          <%= link_to 'algorithm_simulator'  do%>
+          <%= link_to 'algorithm_simulator' do %>
             <i class="fas fa-vial"></i>
             <span>Algorithm Simulator</span>
           <% end %>
@@ -53,32 +53,36 @@
 </nav>
 
 <script>
-  $(".sidebar-dropdown > a").click(function () {
-    $(".sidebar-submenu").slideUp(200);
-    if (
-      $(this)
-      .parent()
-      .hasClass("active")
-    ) {
-      $(".sidebar-dropdown").removeClass("active");
-      $(this)
-        .parent()
-        .removeClass("active");
-    } else {
-      $(".sidebar-dropdown").removeClass("active");
-      $(this)
-        .next(".sidebar-submenu")
-        .slideDown(200);
-      $(this)
-        .parent()
-        .addClass("active");
-    }
-  });
+    $(".sidebar-dropdown > a").click(function () {
+        $(".sidebar-submenu").slideUp(200);
+        if (
+            $(this)
+                .parent()
+                .hasClass("active")
+        ) {
+            $(".sidebar-dropdown").removeClass("active");
+            $(this)
+                .parent()
+                .removeClass("active");
+        } else {
+            $(".sidebar-dropdown").removeClass("active");
+            $(this)
+                .next(".sidebar-submenu")
+                .slideDown(200);
+            $(this)
+                .parent()
+                .addClass("active");
+        }
+    });
 
-  $("#close-sidebar").click(function () {
-    $(".page-wrapper").removeClass("toggled");
-  });
-  $("#show-sidebar").click(function () {
-    $(".page-wrapper").addClass("toggled");
-  });
+    $("#close-sidebar").click(function () {
+        $(".page-wrapper").removeClass("toggled");
+
+        window.dispatchEvent( new Event('resize') );
+    });
+    $("#show-sidebar").click(function () {
+        $(".page-wrapper").addClass("toggled");
+
+        window.dispatchEvent( new Event('resize') );
+    });
 </script>
