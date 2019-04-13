@@ -34,9 +34,13 @@ if __name__ == "__main__":
 
         json_jobs = sock.recv(1024).decode()
 
-        generate_jobs(json_jobs)
-        
+        batches_counter, temp_location = generate_jobs(json_jobs)
+
         sock.sendall("OK_JOBS".encode())
+
+        simulated_algorithm = sock.recv(1024).decode()
+
+        sock.sendall("OK_ALGORITHM".encode())
 
         break
 

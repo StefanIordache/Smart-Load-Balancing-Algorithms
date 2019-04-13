@@ -70,7 +70,7 @@ gem 'solargraph'
 
 # Design
 gem 'bootstrap-sass'
-gem 'bootstrap'
+# gem 'bootstrap'
 gem 'jquery-rails'
 gem 'font-awesome-sass'
 gem 'ajax-datatables-rails'

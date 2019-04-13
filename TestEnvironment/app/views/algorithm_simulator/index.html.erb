@@ -1,37 +1,51 @@
 <div class="row justify-content-md-center">
-    <div class="row col col-lg-12 col-md-12">
-        <h1 class="p-3 pb-5">Generate Input and Test Load Balancing Algorithms</h1>
+  <div class="row col col-lg-12 col-md-12">
+    <h1 class="p-3 pb-5">Generate Input and Test Load Balancing Algorithms</h1>
+  </div>
+  <div class="row col col-lg-12 col-md-12 pb-3">
+    <div class="col col-lg-3 col-md-3">
+      <button type="button" class="btn btn-outline-primary btn-lg" id="button-start-simulation">Start Simulation
+      </button>
     </div>
-    <div class="row col col-lg-12 col-md-12 pb-3">
-      <div class="col col-lg-3 col-md-3">
-        <button type="button" class="btn btn-outline-primary btn-lg" id="button-start-simulation">Start Simulation</button>
-      </div>
-      <div class="col col-lg-3 col-md-3"></div>
-      <div class="col col-lg-3 col-md-3"></div>
-      <div class="col col-lg-3 col-md-3"></div>
+    <div class="col col-lg-3 col-md-3"></div>
+    <div class="col col-lg-3 col-md-3"></div>
+    <div class="col col-lg-3 col-md-3"></div>
+  </div>
+
+  <div class="row col col-lg-12 col-md-12 pb-3">
+    <div class="col col-lg-4 col-md-4">
+      <label for="label-cluster">
+        <h5>
+          Load Balancing Algorithm
+        </h5>
+      </label>
+      <%= select_tag :selector_algorithm, options_for_select(@algorithms), :class => "form-control", :include_blank => "Select one algorithm..." %>
     </div>
-    <div class="row col col-lg-12 col-md-12">
-        <div class="col col-lg-6 col-md-6">
-            <label for="label-cluster">
-                <h4>
-                    Cluster Description
-                </h4>
-            </label>
+    <div class="col col-lg-8 col-md-8"></div>
+  </div>
 
-            <div id="jsoneditor-cluster" class="pt-3 pb-4" style="width: 100%; height: 200%;"></div>
-        </div>
+  <div class="row col col-lg-12 col-md-12">
+    <div class="col col-lg-6 col-md-6">
+      <label for="label-cluster">
+        <h4>
+          Cluster Description
+        </h4>
+      </label>
 
-        <div class="col col-lg-6 col-md-6">
-            <label for="label-jobs">
-                <h4>
-                    Jobs Builder
-                </h4>
-            </label>
-
-            <div id="jsoneditor-jobs" class="pt-3 pb-4" style="width: 100%; height: 200%;"></div>
-        </div>
-
+      <div id="jsoneditor-cluster" class="pt-3 pb-4" style="width: 100%; height: 200%;"></div>
     </div>
+
+    <div class="col col-lg-6 col-md-6">
+      <label for="label-jobs">
+        <h4>
+          Jobs Builder
+        </h4>
+      </label>
+
+      <div id="jsoneditor-jobs" class="pt-3 pb-4" style="width: 100%; height: 200%;"></div>
+    </div>
+
+  </div>
 </div>
 
 <script>
@@ -59,23 +73,31 @@
     $("#button-start-simulation").click(function () {
         let clusterJson = editorCluster.get();
         let jobsJson = editorJobs.get();
+        let selected_algorithm =  $("#selector_algorithm :selected").val();
+
         if (jQuery.isEmptyObject(clusterJson)) {
             swal({
                 icon: "error",
                 text: "Please fill in cluster details."
             });
-        }
-        else if (jQuery.isEmptyObject(jobsJson)) {
+        } else if (jQuery.isEmptyObject(jobsJson)) {
             swal({
                 icon: "error",
                 text: "Please fill in task/job simulation details."
             });
-        } else {
+        } else if (selected_algorithm === undefined || selected_algorithm === "") {
+            swal({
+                icon: "error",
+                text: "Please selected one algorithm that should be tested."
+            });
+        }
+        else {
             const postUrl = "/simulate";
             axios
                 .post(postUrl, {
                     payload_cluster: clusterJson,
-                    payload_jobs: jobsJson
+                    payload_jobs: jobsJson,
+                    simulated_algorithm: selected_algorithm
                 })
                 .then(function (response) {
                     console.log(response);

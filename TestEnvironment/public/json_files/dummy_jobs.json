@@ -17,6 +17,10 @@
             "min": 0.5,
             "max": 4
         },
+        "deadline": {
+            "min": 1.2,
+            "max": 7
+        },
         "profit": {
             "min": 10.2,
             "max": 37

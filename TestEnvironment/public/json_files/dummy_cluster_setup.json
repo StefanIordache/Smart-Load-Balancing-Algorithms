@@ -3,27 +3,21 @@
   "systems": [
     {
       "name": "sys-1",
-      "cpu_cores": 8,
-      "cpu_units": 100,
+      "cpu_units": 300,
       "ram_size": 8192,
-      "disk_size": 5120,
-      "mips": 20
+      "disk_size": 5120
     },
     {
       "name": "sys-2",
-      "cpu_cores": 4,
       "cpu_units": 100,
       "ram_size": 16384,
-      "disk_size": 5120,
-      "mips": 15
+      "disk_size": 5120
     },
     {
       "name": "sys-3",
-      "cpu_cores": 10,
-      "cpu_units": 100,
+      "cpu_units": 150,
       "ram_size": 4096,
-      "disk_size": 8192,
-      "mips": 40
+      "disk_size": 8192
     }
   ]
 }

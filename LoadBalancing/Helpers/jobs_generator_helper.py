@@ -15,7 +15,7 @@ def generate_jobs(json_jobs):
     print(loaded_json)
 
     if loaded_json['scenario'] == 'random':
-        random_scenario(loaded_json['parameters'])
+        return random_scenario(loaded_json['parameters'])
     else:
         print('Invalid scenario')
 
@@ -58,7 +58,7 @@ def random_scenario(params):
 
         batches = batches + 1
 
-    return batches
+    return batches, temp_location
 
 
 def generate_10_seconds_batch(batch_index, params):

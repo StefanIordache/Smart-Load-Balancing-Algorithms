@@ -6,7 +6,7 @@ module AlgorithmSimulatorHelper
   require 'io/console'
   require 'socket'
 
-  def run_simulation_script(info_cluster, info_jobs)
+  def run_simulation_script(info_cluster, info_jobs, simulated_algorithm)
 
 
     pid = Process.spawn "bash " + File.expand_path('../Scripts/simulator.sh')
@@ -22,6 +22,12 @@ module AlgorithmSimulatorHelper
         puts line
 
         client.puts info_jobs
+        client.flush
+
+        line = client.recv(1024)
+        puts line
+
+        client.puts simulated_algorithm
         client.flush
 
         line = client.recv(1024)
