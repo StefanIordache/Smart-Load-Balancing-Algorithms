@@ -7,6 +7,7 @@ from Models.system import *
 from Helpers.json_helper import *
 from Helpers.jobs_generator_helper import *
 from Helpers.simulation_helper import *
+from Helpers.global_helper import *
 
 
 if __name__ == "__main__":
