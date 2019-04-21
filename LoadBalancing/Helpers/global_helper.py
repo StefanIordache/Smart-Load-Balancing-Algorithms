@@ -1,3 +1,7 @@
+from Models.algorithm import *
+import time
+
+
 class Globals:
 
     __instance = None
@@ -5,6 +9,14 @@ class Globals:
     time_precision_factor = 100
     batch_size_in_seconds = 10
     simulation_time = 0
+    number_of_batches = 0
+    storage_path = ""
+    algorithm = Algorithm.BLANK
+
+    time_start = time.time()
+    time_jobs_generation = time.time()
+    time_simulation = time.time()
+    time_end = time.time()
 
     @staticmethod
     def getInstance():
@@ -20,6 +32,9 @@ class Globals:
             self.time_precision_factor = 100
             self.batch_size_in_seconds = 10
             self.simulation_time = 0
+            self.number_of_batches = 0
+            self.storage_path = ""
+            self.algorithm = Algorithm.BLANK
             Globals.__instance = self
 
     def compute_batch_size_in_seconds(self, simulation_time):

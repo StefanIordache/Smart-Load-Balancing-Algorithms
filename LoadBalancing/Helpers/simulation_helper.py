@@ -2,9 +2,9 @@ from Algorithms.FCSF import *
 from Helpers.global_helper import *
 
 
-def start_simulation(selected_algorithm, systems, jobs_location, number_of_batches, params):
+def start_simulation(systems, params):
 
-    if selected_algorithm == "FCFS":
-        run_FCFS(systems, jobs_location, number_of_batches, params)
+    if GLOBAL.algorithm.name is 'FCFS':
+        run_FCFS(systems, params)
 
     return 1

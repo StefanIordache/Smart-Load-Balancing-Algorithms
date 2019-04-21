@@ -15,6 +15,12 @@ module AlgorithmSimulatorHelper
 
       computation = Thread.start(server.accept) do |client|
 
+        client.puts simulated_algorithm
+        client.flush
+
+        line = client.recv(1024)
+        puts line
+
         client.puts info_cluster
         client.flush
 
@@ -22,12 +28,6 @@ module AlgorithmSimulatorHelper
         puts line
 
         client.puts info_jobs
-        client.flush
-
-        line = client.recv(1024)
-        puts line
-
-        client.puts simulated_algorithm
         client.flush
 
         line = client.recv(1024)

@@ -1,45 +1,49 @@
+from operator import attrgetter
+import numpy as np
+from collections import *
+from sortedcontainers import *
+
+
 from Models.system import *
 from Models.job import *
 
 from Helpers.json_helper import *
-from Helpers.algorithms_helper import *
+# from Helpers.algorithms_helper import *
+from Helpers.global_helper import *
 
-from operator import attrgetter
-import numpy as np
-from collections import *
 
-def run_FCFS(systems, jobs_location, number_of_batches, params):
 
-    duration = int(params['timeline']['generation_time'])
+def run_FCFS(systems, params):
 
-    current_batch_index = 0
+    jobs_waiting = deque()
 
-    jobs_array = load_batch_by_algorithm_order(jobs_location, current_batch_index)
+    batch_index = 0
 
-    # jobs_array = load_jobs_by_algorithm_order(jobs_location, number_of_batches)
-
-    # for timestamp in np.arange(0, duration + 0.01, 0.01):
-    #     if float(timestamp).is_integer() and int(timestamp) %  == 0:
-    #         current_batch_index = current_batch_index + 1
-    #         jobs_array.clear()
-    #         jobs_array = load_batch_by_algorithm_order(jobs_location, current_batch_index)
+    for timestamp in range(int((GLOBAL.simulation_time + 0.01) * GLOBAL.time_precision_factor)):
+        if timestamp % GLOBAL.batch_size_in_seconds == 0 and batch_index < GLOBAL.number_of_batches:
+            # print(timestamp)
+            jobs_waiting.clear()
+            jobs_waiting.extend(load_batch_by(batch_index))
+            batch_index = batch_index + 1
+            # print(jobs_waiting)
 
     return 1
 
 
-def load_jobs_by_algorithm_order(jobs_location, number_of_batches):
-    jobs = []
+# def load_jobs_by_algorithm_order():
+#     jobs = []
+#
+#     for index in range(number_of_batches):
+#         print(index)
+#         batch = load_jobs_batch(jobs_location + "/" + str(index) + ".json")
+#         batch.sort(key=attrgetter('arrival'))
+#         jobs.extend(batch)
+#
+#     return jobs
 
-    for index in range(number_of_batches):
-        batch = load_jobs_batch(jobs_location + "/" + str(index) + ".json")
-        batch.sort(key=attrgetter('arrival'))
-        jobs.extend(batch)
 
-    return jobs
-
-
-def load_batch_by_algorithm_order(jobs_location, batch_index):
-    batch = load_jobs_batch(jobs_location + "/" + str(batch_index) + ".json")
-    batch.sort(key=attrgetter('arrival'))
+def load_batch_by(batch_index):
+    batch = load_jobs_batch(GLOBAL.storage_path + "/Jobs/" + str(batch_index) + ".json")
+    # batch.sort(key=attrgetter('arrival'))
 
     return batch

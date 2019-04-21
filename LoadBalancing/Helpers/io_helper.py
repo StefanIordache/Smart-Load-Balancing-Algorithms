@@ -2,10 +2,13 @@ import os
 
 
 def create_directory(path):
+
     try:
         os.mkdir(path)
     except FileExistsError:
         print("File/Folder Exists - " + path)
+
+    return path
 
 
 def create_file(path, extension=""):
