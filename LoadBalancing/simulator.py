@@ -4,6 +4,7 @@ import json
 import socket
 import datetime
 import time
+import random
 
 from Models.system import *
 from Helpers.json_helper import *
@@ -31,6 +32,8 @@ def create_storage_path():
 
 
 if __name__ == "__main__":
+
+    random.seed(672367)
 
     start = time.time()
 

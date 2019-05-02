@@ -51,7 +51,7 @@ def random_scenario(params):
             batch_content = generate_100_seconds_batch(batch, params)
 
 
-        batch_content = sort_by_selected_algorithm(batch_content)
+        batch_content = sort_by_arrival_time(batch_content)
 
         a = time.time()
 
@@ -70,7 +70,7 @@ def random_scenario(params):
         for sec in range(number_of_batches * GLOBAL.batch_size_in_seconds, GLOBAL.simulation_time):
             batch_content.extend(generate_1_second_batch(sec, params))
 
-        batch_content = sort_by_selected_algorithm(batch_content)
+        batch_content = sort_by_arrival_time(batch_content)
 
         with open(batch_storage_path, 'w') as outfile:
             rapidjson.dump(batch_content, outfile, indent=4)
@@ -112,9 +112,8 @@ def generate_1_second_batch(second, params):
     return batch_content
 
 
-def sort_by_selected_algorithm(batch):
+def sort_by_arrival_time(batch):
 
-    if GLOBAL.algorithm.name == 'FCFS':
-        batch.sort(key=lambda x: x.arrival, reverse=False)
+    batch.sort(key=lambda x: x.arrival, reverse=False)
 
     return batch

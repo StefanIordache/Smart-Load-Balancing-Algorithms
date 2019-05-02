@@ -1,8 +1,60 @@
 class System(dict):
 
-    def __init__(self, name, cpu_units, ram_size, disk_size):
+    def __init__(self, name="", cpu_units=0, ram_size=0, disk_size=0):
         dict.__init__(self,
-                      name=name,
-                      cpu_units=cpu_units,
-                      ram_size=ram_size,
-                      disk_size=disk_size)
+                      _name=name,
+                      _cpu_units=cpu_units,
+                      _ram_size=ram_size,
+                      _disk_size=disk_size)
+        self._name = name
+        self._cpu_units = cpu_units
+        self._ram_size = ram_size
+        self._disk_size = disk_size
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @name.deleter
+    def name(self):
+        del self._name
+
+    @property
+    def cpu_units(self):
+        return self._cpu_units
+
+    @cpu_units.setter
+    def cpu_units(self, value):
+        self._cpu_units = value
+
+    @cpu_units.deleter
+    def cpu_units(self):
+        del self._cpu_units
+
+    @property
+    def ram_size(self):
+        return self._ram_size
+
+    @ram_size.setter
+    def ram_size(self, value):
+        self._ram_size = value
+
+    @ram_size.deleter
+    def ram_size(self):
+        del self._ram_size
+
+    @property
+    def disk_size(self):
+        return self._disk_size
+
+    @disk_size.setter
+    def disk_size(self, value):
+        self._disk_size = value
+
+    @disk_size.deleter
+    def disk_size(self):
+        del self._disk_size

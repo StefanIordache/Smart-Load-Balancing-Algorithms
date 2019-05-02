@@ -20,7 +20,7 @@ def random_job(second, params):
     max_profit = float(params['profit']['max'])
 
     execution = round(random.uniform(min_execution, max_execution), 2)
-    deadline = round(random.uniform(min_deadline, max_deadline), 2)
+    deadline = round(random.uniform(max(min_deadline, execution), max_deadline), 2)
     cpu_units = min_cpu_units + fastrand.pcg32bounded(max_cpu_units - min_cpu_units + 1)
     priority = min_priority + fastrand.pcg32bounded(max_priority - min_priority + 1)
     profit = round(random.uniform(min_profit, max_profit), 2)

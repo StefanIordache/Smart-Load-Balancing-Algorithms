@@ -18,8 +18,10 @@ def unpack_cluster(json_cluster):
     systems = []
 
     for item in loaded_json["systems"]:
-        system = namedtuple("System", item.keys())(*item.values())
+        system = System(item["name"], item["cpu_units"], item["ram_size"], item["disk_size"])
         systems.append(system)
+
+    GLOBAL.cluster = systems
 
     return systems
 
