@@ -50,7 +50,6 @@ def random_scenario(params):
         elif GLOBAL.batch_size_in_seconds == 100:
             batch_content = generate_100_seconds_batch(batch, params)
 
-
         batch_content = sort_by_arrival_time(batch_content)
 
         a = time.time()

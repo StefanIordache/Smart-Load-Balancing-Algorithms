@@ -23,10 +23,10 @@ def set_algorithm(algorithm):
 
 
 def create_storage_path():
-    base_path = str(Path(os.path.dirname(__file__)))
+    base_path = str(Path(os.path.dirname(__file__)).parent)
 
     storage_path = create_directory(base_path + "/Storage")
-    storage_path = create_directory(storage_path + '/' + GLOBAL.algorithm.name + " - " + str(datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')))
+    storage_path = create_directory(storage_path + '/' + str(GLOBAL.simulation_id) + " - " + GLOBAL.algorithm.name + " - " + str(datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')))
 
     GLOBAL.storage_path = storage_path
 
@@ -57,6 +57,9 @@ if __name__ == "__main__":
 
     while True:
 
+        simulation_id = int(sock.recv(1024).decode())
+        GLOBAL.simulation_id = simulation_id
+
         simulated_algorithm = sock.recv(1024).decode()
         simulated_algorithm = simulated_algorithm.rstrip()
 
@@ -83,8 +86,12 @@ if __name__ == "__main__":
 
         start_simulation(systems, simulation_params)
 
+        time.sleep(0.1)
         sock.sendall("FINISHED".encode())
+        time.sleep(0.1)
         sock.sendall("NO ERRORS".encode())
+        time.sleep(0.1)
+        sock.sendall(GLOBAL.storage_path.encode())
 
         break
 

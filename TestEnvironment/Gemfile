@@ -67,6 +67,7 @@ gem 'dotenv-rails'
 gem 'simple_form'
 gem 'rename'
 gem 'solargraph'
+gem 'therubyracer'
 
 # Design
 gem 'bootstrap-sass'

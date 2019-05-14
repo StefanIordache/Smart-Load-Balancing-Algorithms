@@ -5,6 +5,9 @@ import time
 class Globals:
 
     __instance = None
+
+    simulation_id = -1
+
     time_precision = 0.01
     time_precision_factor = 100
     batch_size_in_seconds = 10
@@ -30,6 +33,7 @@ class Globals:
         if Globals.__instance != None:
             raise Exception("Globals is a singleton class!")
         else:
+            self.simulation_id = -1
             self.time_precision = 0.01
             self.time_precision_factor = 100
             self.batch_size_in_seconds = 10
