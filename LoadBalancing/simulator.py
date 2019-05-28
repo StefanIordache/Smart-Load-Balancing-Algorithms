@@ -25,9 +25,12 @@ def set_algorithm(algorithm):
 def create_storage_path():
     base_path = str(Path(os.path.dirname(__file__)).parent)
 
-    storage_path = create_directory(base_path + "/Storage")
-    storage_path = create_directory(storage_path + '/' + str(GLOBAL.simulation_id) + " - " + GLOBAL.algorithm.name + " - " + str(datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')))
+    storage_path = create_directory(base_path + "/TestEnvironment/app/storage")
+    storage_path = create_directory(storage_path + "/simulations")
+    storage_directory = str(GLOBAL.simulation_id) + " - " + GLOBAL.algorithm.name + " - " + str(datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'))
+    storage_path = create_directory(storage_path + '/' + storage_directory)
 
+    GLOBAL.storage_directory = storage_directory
     GLOBAL.storage_path = storage_path
 
 
@@ -91,7 +94,7 @@ if __name__ == "__main__":
         time.sleep(0.1)
         sock.sendall("NO ERRORS".encode())
         time.sleep(0.1)
-        sock.sendall(GLOBAL.storage_path.encode())
+        sock.sendall(GLOBAL.storage_directory.encode())
 
         break
 

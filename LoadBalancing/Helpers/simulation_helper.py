@@ -1,4 +1,4 @@
-from Algorithms.FCSF import *
+from Algorithms.FCFS import *
 from Helpers.global_helper import *
 
 

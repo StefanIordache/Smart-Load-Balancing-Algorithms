@@ -2,15 +2,16 @@ class System(dict):
 
     def __init__(self, name="", cpu_units=0, ram_size=0, disk_size=0):
         dict.__init__(self,
-                      _name=name,
-                      _cpu_units=cpu_units,
-                      _ram_size=ram_size,
-                      _disk_size=disk_size)
-        self._name = name
-        self._cpu_units = cpu_units
-        self._ram_size = ram_size
-        self._disk_size = disk_size
+                      name=name,
+                      cpu_units=cpu_units,
+                      ram_size=ram_size,
+                      disk_size=disk_size)
+        self.name = name
+        self.cpu_units = cpu_units
+        self.ram_size = ram_size
+        self.disk_size = disk_size
 
+    '''
     @property
     def name(self):
         return self._name
@@ -26,7 +27,7 @@ class System(dict):
     @property
     def cpu_units(self):
         return self._cpu_units
-
+    
     @cpu_units.setter
     def cpu_units(self, value):
         self._cpu_units = value
@@ -57,4 +58,4 @@ class System(dict):
 
     @disk_size.deleter
     def disk_size(self):
-        del self._disk_size
+        del self._disk_size'''

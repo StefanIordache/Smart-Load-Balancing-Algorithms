@@ -4,7 +4,7 @@ import os
 def create_directory(path):
 
     try:
-        os.mkdir(path)
+        os.mkdir(path, mode=0o777)
     except FileExistsError:
         print("File/Folder Exists - " + path)
 

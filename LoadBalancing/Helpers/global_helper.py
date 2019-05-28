@@ -14,6 +14,7 @@ class Globals:
     simulation_time = 0
     number_of_batches = 0
     storage_path = ""
+    storage_directory = ""
     algorithm = Algorithm.BLANK
 
     time_start = time.time()
@@ -22,6 +23,7 @@ class Globals:
     time_end = time.time()
 
     cluster = []
+    current_cluster_state = []
 
     @staticmethod
     def getInstance():
@@ -40,8 +42,10 @@ class Globals:
             self.simulation_time = 0
             self.number_of_batches = 0
             self.storage_path = ""
+            self.storage_directory = ""
             self.algorithm = Algorithm.BLANK
             self.cluster = []
+            self.current_cluster_state = []
             Globals.__instance = self
 
     def compute_batch_size_in_seconds(self, simulation_time):

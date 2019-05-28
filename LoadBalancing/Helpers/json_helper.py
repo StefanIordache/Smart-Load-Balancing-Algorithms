@@ -50,4 +50,3 @@ def load_jobs_batch(file_location):
     # gc.enable()
 
     return batch
-

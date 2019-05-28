@@ -54,6 +54,9 @@
 </div>
 
 
+<%= render 'statistics' %>
+
+
 <script>
     let containerCluster = document.getElementById("jsoneditor-cluster");
     let contatinerJobs = document.getElementById("jsoneditor-jobs");
@@ -74,6 +77,8 @@
         axios.get(dummyJobsJsonUrl).then(function (response) {
             editorJobs.set(response.data);
         });
+
+        $('#modalStatistics').modal({ show: false})
     });
 
     function callSimulation(url, clusterJson, jobsJson, selectedAlgorithm) {
@@ -85,10 +90,8 @@
             })
             .then(function (response) {
                 console.log(response);
-                // stopLoadingScreenAnimation();
             })
             .catch(function (error) {
-                // stopLoadingScreenAnimation();
                 swal({
                     icon: "error",
                     text: "Error!"
@@ -122,8 +125,12 @@
             
             callSimulation(postUrl, clusterJson, jobsJson, selectedAlgorithm).then(function (response) {
                 stopLoadingScreenAnimation();
+
+                // modal rezultate
+                $('#modalStatistics').modal('show');
             }).catch(function (response) {
                 stopLoadingScreenAnimation();
+                $('#modalStatistics').modal('show');
             });
 
         }
