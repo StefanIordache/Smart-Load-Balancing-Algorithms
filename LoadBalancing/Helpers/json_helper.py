@@ -18,8 +18,13 @@ def unpack_cluster(json_cluster):
     systems = []
 
     for item in loaded_json["systems"]:
-        system = System(item["name"], item["cpu_units"], item["ram_size"], item["disk_size"])
-        systems.append(system)
+        if "gpu" in item:
+            system = System(item["name"], item["cpu_units"], item["ram_size"], item["disk_size"],
+                            True, item["gpu"]["vram_size"], item["gpu"]["computational_cores"])
+            systems.append(system)
+        else:
+            system = System(item["name"], item["cpu_units"], item["ram_size"], item["disk_size"])
+            systems.append(system)
 
     GLOBAL.cluster = systems
 
@@ -41,7 +46,9 @@ def load_jobs_batch(file_location):
 
             # Explicit is faster than "namedtuple"
             job = Job(item['arrival'], item['execution'], item['deadline'],
-                      item['cpu_units'], item['priority'], item['profit'])
+                      item['cpu_units'], item['ram_size'], item['disk_size'],
+                      item['needs_gpu'], item['gpu_vram_size'], item['gpu_computational_cores'],
+                      item['priority'], item['profit'])
 
             # Slow version
             # job = namedtuple("Job", item.keys())(*item.values())

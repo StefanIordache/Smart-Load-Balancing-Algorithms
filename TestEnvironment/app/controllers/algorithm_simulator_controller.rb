@@ -17,7 +17,18 @@ class AlgorithmSimulatorController < ApplicationController
     simulation = Simulation.new(algorithm: simulated_algorithm, cluster_params: info_cluster, jobs_params: info_jobs, storage_path: "")
     simulation.save
 
-    run_simulation_script simulation, info_cluster, info_jobs, simulated_algorithm
+    simulation_completed_with_success = run_simulation_script simulation, info_cluster, info_jobs, simulated_algorithm
+
+    result = OpenStruct.new
+
+    if simulation_completed_with_success == false
+      result.status = "failed"
+    else
+      result.status = "successful"
+      result.simulation = simulation
+    end
+
+    render json: result.to_json
 
   end
 end

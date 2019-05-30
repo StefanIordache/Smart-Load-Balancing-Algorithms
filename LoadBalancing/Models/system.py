@@ -1,15 +1,21 @@
 class System(dict):
 
-    def __init__(self, name="", cpu_units=0, ram_size=0, disk_size=0):
+    def __init__(self, name="", cpu_units=0, ram_size=0, disk_size=0, does_have_gpu=False, gpu_vram_size=0, gpu_computational_cores=0):
         dict.__init__(self,
                       name=name,
                       cpu_units=cpu_units,
                       ram_size=ram_size,
-                      disk_size=disk_size)
+                      disk_size=disk_size,
+                      does_have_gpu=does_have_gpu,
+                      gpu_vram_size=gpu_vram_size,
+                      gpu_computational_cores=gpu_computational_cores)
         self.name = name
         self.cpu_units = cpu_units
         self.ram_size = ram_size
         self.disk_size = disk_size
+        self.does_have_gpu = does_have_gpu
+        self.gpu_vram_size = gpu_vram_size
+        self.gpu_computational_cores = gpu_computational_cores
 
     '''
     @property

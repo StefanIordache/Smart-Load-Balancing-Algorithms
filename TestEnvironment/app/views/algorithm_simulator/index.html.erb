@@ -89,7 +89,7 @@
                 simulated_algorithm: selectedAlgorithm
             })
             .then(function (response) {
-                console.log(response);
+                return response;
             })
             .catch(function (error) {
                 swal({
@@ -126,11 +126,15 @@
             callSimulation(postUrl, clusterJson, jobsJson, selectedAlgorithm).then(function (response) {
                 stopLoadingScreenAnimation();
 
-                // modal rezultate
-                $('#modalStatistics').modal('show');
+                popStatisticsModal(response.data.table.simulation)
+
             }).catch(function (response) {
                 stopLoadingScreenAnimation();
-                $('#modalStatistics').modal('show');
+                console.log("error");
+                swal({
+                    icon: "error",
+                    text: "Internal server error."
+                });
             });
 
         }

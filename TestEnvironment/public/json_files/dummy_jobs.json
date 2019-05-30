@@ -3,7 +3,18 @@
     "parameters": {
         "usage": {
             "min_cpu_units": 20,
-            "max_cpu_units": 30
+            "max_cpu_units": 30,
+            "min_ram_size": 150,
+            "max_ram_size": 1020,
+            "min_disk_size": 35,
+            "max_disk_size": 330,
+            "gpu": {
+                "probability": 16,
+                "min_vram_size": 200,
+                "max_vram_size": 400,
+                "min_computational_cores": 30,
+                "max_computational_cores": 100
+            }
         },
         "timeline": {
             "distribution": 10,

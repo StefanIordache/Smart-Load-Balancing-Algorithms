@@ -3,7 +3,8 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 .modal-xl {
-  width: 100%;
+  width: 99% !important;
+  max-width: 99% !important;
 }
 
 

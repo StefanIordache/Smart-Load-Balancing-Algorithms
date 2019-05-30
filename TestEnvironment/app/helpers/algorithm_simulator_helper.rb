@@ -7,6 +7,7 @@ module AlgorithmSimulatorHelper
   require 'socket'
 
   def run_simulation_script(simulation, info_cluster, info_jobs, simulated_algorithm)
+    simulation_completed_with_success = false
 
     begin
       pid = Process.spawn "bash " + File.expand_path('../Scripts/simulator.sh')
@@ -64,6 +65,7 @@ module AlgorithmSimulatorHelper
 
       if finished_with_success == true
         simulation.update(storage_path: storage_path.reverse.chomp('../Storage/').reverse)
+        simulation_completed_with_success = true
       else
         simulation.destroy
       end
@@ -73,6 +75,8 @@ module AlgorithmSimulatorHelper
     rescue
       puts "ultima salvare"
     end
+
+    return simulation_completed_with_success
 
   end
 

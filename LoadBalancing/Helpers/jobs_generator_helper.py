@@ -30,7 +30,7 @@ def generate_jobs(json_jobs):
 def random_scenario(params):
     global sum
 
-    jobs_path = GLOBAL.storage_path + "/Jobs"
+    jobs_path = GLOBAL.storage_path + "/jobs"
     create_directory(jobs_path)
 
     GLOBAL.simulation_time = int(params['timeline']['generation_time'])

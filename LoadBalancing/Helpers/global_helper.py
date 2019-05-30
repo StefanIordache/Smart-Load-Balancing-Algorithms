@@ -25,6 +25,8 @@ class Globals:
     cluster = []
     current_cluster_state = []
 
+    profit = 0
+
     @staticmethod
     def getInstance():
         if Globals.__instance == None:

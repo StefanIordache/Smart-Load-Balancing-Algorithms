@@ -5,7 +5,11 @@
       "name": "sys-1",
       "cpu_units": 300,
       "ram_size": 8192,
-      "disk_size": 5120
+      "disk_size": 5120,
+      "gpu": {
+        "vram_size": 3000,
+        "computational_cores": 650
+      }
     },
     {
       "name": "sys-2",
@@ -17,7 +21,11 @@
       "name": "sys-3",
       "cpu_units": 150,
       "ram_size": 4096,
-      "disk_size": 8192
+      "disk_size": 8192,
+      "gpu": {
+        "vram_size": 1300,
+        "computational_cores": 150
+      }
     }
   ]
 }
