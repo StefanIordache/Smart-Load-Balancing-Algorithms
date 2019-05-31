@@ -11,4 +11,8 @@ Rails.application.routes.draw do
 
   get 'templates', to: 'templates#index'
 
+
+  get 'get_snapshots_counter_by_simulation_id', to: 'request#get_snapshots_counter_by_simulation_id'
+  get 'get_snapshots_json_by_simulation_id_and_index', to: 'request#get_snapshots_json_by_simulation_id_and_index'
+
 end
