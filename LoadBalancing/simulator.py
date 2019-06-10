@@ -16,6 +16,10 @@ from Helpers.global_helper import *
 def set_algorithm(algorithm):
     if algorithm == 'FCFS':
         GLOBAL.algorithm = Algorithm.FCFS
+    elif algorithm == 'PARALLELIZED-FCFS':
+        GLOBAL.algorithm = Algorithm.PARALLELIZED_FCFS
+    elif algorithm == 'OPTIMIZED-FCFS':
+        GLOBAL.algorithm = Algorithm.OPTIMIZED_FCFS
     elif algorithm == 'MCT':
         GLOBAL.algorithm = Algorithm.MCT
     else:

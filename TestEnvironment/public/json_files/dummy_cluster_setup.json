@@ -3,7 +3,9 @@
   "systems": [
     {
       "name": "sys-1",
+      "cpu_cores": 4,
       "cpu_units": 300,
+      "cpu_units_per_second_per_core": 80,
       "ram_size": 8192,
       "disk_size": 5120,
       "gpu": {
@@ -13,13 +15,17 @@
     },
     {
       "name": "sys-2",
+      "cpu_cores": 2,
       "cpu_units": 100,
+      "cpu_units_per_second_per_core": 100,
       "ram_size": 16384,
       "disk_size": 5120
     },
     {
       "name": "sys-3",
+      "cpu_cores": 4,
       "cpu_units": 150,
+      "cpu_units_per_second_per_core": 60,
       "ram_size": 4096,
       "disk_size": 8192,
       "gpu": {

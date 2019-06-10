@@ -3,7 +3,6 @@ import numpy as np
 from collections import *
 from sortedcontainers import *
 from copy import deepcopy
-import fastrand
 
 from Models.system import *
 from Models.job import *
@@ -22,7 +21,6 @@ profit_total = 0
 profit_maximum = 0
 profit_lost = 0
 jobs_discarded = 0
-delay_total = 0
 
 cluster_state = []
 snapshots = []
@@ -30,7 +28,7 @@ snapshots_batches_counter = 0
 snapshots_storage_path = ""
 
 
-def run_FCFS(systems, params):
+def run_MCT(systems, params):
     global snapshots_storage_path
     global cluster_state
 
@@ -78,7 +76,6 @@ def run_FCFS(systems, params):
     print("Castig: " + str(profit_total))
     print("Pierdere: " + str(profit_lost))
     print("Peste deadline: " + str(jobs_discarded))
-    print("Total intarzieri: " + str(abs(round(delay_total, 2))))
 
     write_snapshots()
     snapshots.clear()
@@ -87,6 +84,8 @@ def run_FCFS(systems, params):
 
 
 def extract_finished_jobs_from_cluster(timestamp):
+    global profit_total
+
     finished = 0
 
     while len(jobs_running) > 0 and jobs_running[0][0].finish <= timestamp:
@@ -96,6 +95,8 @@ def extract_finished_jobs_from_cluster(timestamp):
         cpu_cores_usage = item[2]
 
         unload_from_system(job, system_index, cpu_cores_usage)
+
+        profit_total = profit_total + job.profit
 
         jobs_running.pop(0)
 
@@ -107,8 +108,6 @@ def extract_finished_jobs_from_cluster(timestamp):
 def try_add_new_jobs(timestamp):
     global jobs_discarded
     global profit_lost
-    global profit_total
-    global delay_total
 
     loaded = 0
     expired_while_waiting = 0
@@ -137,17 +136,10 @@ def try_add_new_jobs(timestamp):
                 jobs_waiting.pop(0)
                 loaded = loaded + 1
                 job_processed = True
-                profit_total = profit_total + job.profit
-                delay_total = delay_total + (job.finish - job.execution - job.arrival)
 
-                # print(estimated_execution_time)
-                # print(system_index)
-                # print(cpu_cores_usage)
-                # print(delay_total)
-                # print(job.finish)
-                # print(job.execution)
-                # print(job.arrival)
-                # print("------")
+                print(estimated_execution_time)
+                print(system_index)
+                print(cpu_cores_usage)
             else:
                 profit_lost = profit_lost + job.profit
                 jobs_discarded = jobs_discarded + 1
@@ -195,46 +187,36 @@ def estimate_execution_time(job, cpu_cores_usage):
 
 
 def find_suitable_system(job):
+    system_index = 0
     cpu_cores_usage = []
     selected_system_index = -1
+    max_available_cpu_units_per_second = 0
 
-    system_found = False
-    maximum_attempts = 5
-
-    attempts_count = 0
-
-    while system_found is False and attempts_count < maximum_attempts:
-        random_system_index = fastrand.pcg32bounded(len(cluster_state))
-
-        system = cluster_state[random_system_index]
+    for system in cluster_state:
 
         if job.ram_size <= system.ram_size and job.disk_size <= system.disk_size:
             if job.needs_gpu is False:
 
-                cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units),
-                                                                     key=itemgetter(1))
+                cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units), key=itemgetter(1))
 
-                if available_cpu_units_per_second > 0:
+                if available_cpu_units_per_second > 0 and available_cpu_units_per_second > max_available_cpu_units_per_second:
                     cpu_cores_usage = [0 for i in range(system.cpu_cores)]
-                    cpu_cores_usage[cpu_core_index] = available_cpu_units_per_second
-                    selected_system_index = random_system_index
-                    system_found = True
-                    attempts_count = attempts_count + 1
+                    cpu_cores_usage[cpu_core_index] = min([available_cpu_units_per_second, job.cpu_units])
+                    max_available_cpu_units_per_second = available_cpu_units_per_second
+                    selected_system_index = system_index
 
             elif job.needs_gpu is True:
                 if job.gpu_vram_size <= system.gpu_vram_size and job.gpu_computational_cores <= system.gpu_computational_cores:
 
-                    cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units),
-                                                                         key=itemgetter(1))
+                    cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units), key=itemgetter(1))
 
-                    if available_cpu_units_per_second > 0:
+                    if available_cpu_units_per_second > 0 and available_cpu_units_per_second > max_available_cpu_units_per_second:
                         cpu_cores_usage = [0 for i in range(system.cpu_cores)]
-                        cpu_cores_usage[cpu_core_index] = available_cpu_units_per_second
-                        selected_system_index = random_system_index
-                        system_found = True
-                        attempts_count = attempts_count + 1
+                        cpu_cores_usage[cpu_core_index] = min([available_cpu_units_per_second, job.cpu_units])
+                        max_available_cpu_units_per_second = available_cpu_units_per_second
+                        selected_system_index = system_index
 
-        attempts_count = attempts_count + 1
+        system_index = system_index + 1
 
     return selected_system_index, cpu_cores_usage
 
@@ -254,14 +236,11 @@ def append_snapshot(timestamp, waiting, new, running, loaded, finished, expired_
     temp_cluster = []
 
     for item in cluster_state:
-        cpu_cores_available_units = []
-        for i in range(len(item.cpu_cores_available_units)):
-            cpu_cores_available_units.append(item.cpu_cores_available_units[i])
         system = System(item.name,
                         item.cpu_cores, item.cpu_units, item.cpu_units_per_second_per_core,
                         item.ram_size, item.disk_size,
                         item.does_have_gpu, item.gpu_vram_size, item.gpu_computational_cores,
-                        cpu_cores_available_units)
+                        item.cpu_cores_available_units)
         temp_cluster.append(system)
 
     snapshot = Snapshot(timestamp, temp_cluster, waiting, new, running, loaded,

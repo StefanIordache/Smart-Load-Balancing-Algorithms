@@ -3,7 +3,6 @@ import numpy as np
 from collections import *
 from sortedcontainers import *
 from copy import deepcopy
-import fastrand
 
 from Models.system import *
 from Models.job import *
@@ -30,7 +29,7 @@ snapshots_batches_counter = 0
 snapshots_storage_path = ""
 
 
-def run_FCFS(systems, params):
+def run_optimized_FCFS(systems, params):
     global snapshots_storage_path
     global cluster_state
 
@@ -87,6 +86,8 @@ def run_FCFS(systems, params):
 
 
 def extract_finished_jobs_from_cluster(timestamp):
+    global profit_total
+
     finished = 0
 
     while len(jobs_running) > 0 and jobs_running[0][0].finish <= timestamp:
@@ -195,46 +196,36 @@ def estimate_execution_time(job, cpu_cores_usage):
 
 
 def find_suitable_system(job):
+    system_index = 0
     cpu_cores_usage = []
     selected_system_index = -1
+    max_available_cpu_units_per_second = 0
 
-    system_found = False
-    maximum_attempts = 5
-
-    attempts_count = 0
-
-    while system_found is False and attempts_count < maximum_attempts:
-        random_system_index = fastrand.pcg32bounded(len(cluster_state))
-
-        system = cluster_state[random_system_index]
+    for system in cluster_state:
 
         if job.ram_size <= system.ram_size and job.disk_size <= system.disk_size:
             if job.needs_gpu is False:
 
-                cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units),
-                                                                     key=itemgetter(1))
+                cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units), key=itemgetter(1))
 
-                if available_cpu_units_per_second > 0:
+                if available_cpu_units_per_second > 0 and available_cpu_units_per_second > max_available_cpu_units_per_second:
                     cpu_cores_usage = [0 for i in range(system.cpu_cores)]
                     cpu_cores_usage[cpu_core_index] = available_cpu_units_per_second
-                    selected_system_index = random_system_index
-                    system_found = True
-                    attempts_count = attempts_count + 1
+                    max_available_cpu_units_per_second = available_cpu_units_per_second
+                    selected_system_index = system_index
 
             elif job.needs_gpu is True:
                 if job.gpu_vram_size <= system.gpu_vram_size and job.gpu_computational_cores <= system.gpu_computational_cores:
 
-                    cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units),
-                                                                         key=itemgetter(1))
+                    cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units), key=itemgetter(1))
 
-                    if available_cpu_units_per_second > 0:
+                    if available_cpu_units_per_second > 0 and available_cpu_units_per_second > max_available_cpu_units_per_second:
                         cpu_cores_usage = [0 for i in range(system.cpu_cores)]
                         cpu_cores_usage[cpu_core_index] = available_cpu_units_per_second
-                        selected_system_index = random_system_index
-                        system_found = True
-                        attempts_count = attempts_count + 1
+                        max_available_cpu_units_per_second = available_cpu_units_per_second
+                        selected_system_index = system_index
 
-        attempts_count = attempts_count + 1
+        system_index = system_index + 1
 
     return selected_system_index, cpu_cores_usage
 

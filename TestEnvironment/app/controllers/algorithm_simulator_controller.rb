@@ -5,7 +5,7 @@ class AlgorithmSimulatorController < ApplicationController
 
   def index
 
-    @algorithms = %w(FCFS Round-Robin MCT)
+    @algorithms = %w(FCFS PARALLELIZED-FCFS OPTIMIZED-FCFS MCT MET)
 
   end
 

@@ -30,7 +30,7 @@ snapshots_batches_counter = 0
 snapshots_storage_path = ""
 
 
-def run_FCFS(systems, params):
+def run_parallelized_FCFS(systems, params):
     global snapshots_storage_path
     global cluster_state
 
@@ -74,9 +74,9 @@ def run_FCFS(systems, params):
                 write_snapshots()
                 snapshots.clear()
 
-    print("Profit maxim: " + str(profit_maximum))
-    print("Castig: " + str(profit_total))
-    print("Pierdere: " + str(profit_lost))
+    print("Profit maxim: " + str(round(profit_maximum, 2)))
+    print("Castig: " + str(round(profit_total, 2)))
+    print("Pierdere: " + str(round(profit_lost, 2)))
     print("Peste deadline: " + str(jobs_discarded))
     print("Total intarzieri: " + str(abs(round(delay_total, 2))))
 
@@ -185,11 +185,17 @@ def load_to_system(job, system_index, cpu_cores_usage):
 def estimate_execution_time(job, cpu_cores_usage):
     estimated_execution_time = 0
 
-    for i in range(len(cpu_cores_usage)):
-        if cpu_cores_usage[i] > 0:
-            execution_time = job.cpu_units / cpu_cores_usage[i]
-            if execution_time > estimated_execution_time:
-                estimated_execution_time = execution_time
+    if job.can_be_parallelized_on_cpu is False:
+        for i in range(len(cpu_cores_usage)):
+            if cpu_cores_usage[i] > 0:
+                execution_time = job.cpu_units / cpu_cores_usage[i]
+                if execution_time > estimated_execution_time:
+                    estimated_execution_time = execution_time
+    else:
+        cpu_units_usage = 0
+        for i in range(len(cpu_cores_usage)):
+            cpu_units_usage = cpu_units_usage + cpu_cores_usage[i]
+        estimated_execution_time = job.cpu_units / cpu_units_usage
 
     return round(estimated_execution_time, len(str(GLOBAL.time_precision_factor)) - 1)
 
@@ -210,20 +216,28 @@ def find_suitable_system(job):
 
         if job.ram_size <= system.ram_size and job.disk_size <= system.disk_size:
             if job.needs_gpu is False:
+                if job.can_be_parallelized_on_cpu:
+                    available_cpu_units_per_second = 0
+                    indexed_available_cpu_units_per_second = []
+                    for i in range(system.cpu_cores):
+                        indexed_available_cpu_units_per_second.append((i, system.cpu_cores_available_units[i]))
+                    indexed_available_cpu_units_per_second.sort(key=itemgetter(1), reverse=True)
+                    current_cpu_cores_selected = 0
+                    while (current_cpu_cores_selected < job.max_cpu_cores
+                           and current_cpu_cores_selected < system.cpu_cores
+                           and indexed_available_cpu_units_per_second[current_cpu_cores_selected][1] > 0):
+                        available_cpu_units_per_second = available_cpu_units_per_second + indexed_available_cpu_units_per_second[current_cpu_cores_selected][1]
+                        current_cpu_cores_selected = current_cpu_cores_selected + 1
 
-                cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units),
-                                                                     key=itemgetter(1))
+                    if available_cpu_units_per_second > 0:
+                        cpu_cores_usage = [0 for i in range(system.cpu_cores)]
+                        for i in range(current_cpu_cores_selected):
+                            cpu_cores_usage[indexed_available_cpu_units_per_second[i][0]] = indexed_available_cpu_units_per_second[i][1]
+                        selected_system_index = random_system_index
+                        system_found = True
+                        attempts_count = attempts_count + 1
 
-                if available_cpu_units_per_second > 0:
-                    cpu_cores_usage = [0 for i in range(system.cpu_cores)]
-                    cpu_cores_usage[cpu_core_index] = available_cpu_units_per_second
-                    selected_system_index = random_system_index
-                    system_found = True
-                    attempts_count = attempts_count + 1
-
-            elif job.needs_gpu is True:
-                if job.gpu_vram_size <= system.gpu_vram_size and job.gpu_computational_cores <= system.gpu_computational_cores:
-
+                else:
                     cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units),
                                                                          key=itemgetter(1))
 
@@ -233,6 +247,43 @@ def find_suitable_system(job):
                         selected_system_index = random_system_index
                         system_found = True
                         attempts_count = attempts_count + 1
+
+            elif job.needs_gpu is True:
+                if job.gpu_vram_size <= system.gpu_vram_size and job.gpu_computational_cores <= system.gpu_computational_cores:
+                    if job.can_be_parallelized_on_cpu:
+                        available_cpu_units_per_second = 0
+                        indexed_available_cpu_units_per_second = []
+                        for i in range(system.cpu_cores):
+                            indexed_available_cpu_units_per_second.append((i, system.cpu_cores_available_units[i]))
+                        indexed_available_cpu_units_per_second.sort(key=itemgetter(1), reverse=True)
+                        current_cpu_cores_selected = 0
+                        while (current_cpu_cores_selected < job.max_cpu_cores
+                               and current_cpu_cores_selected < system.cpu_cores
+                               and indexed_available_cpu_units_per_second[current_cpu_cores_selected][1] > 0):
+                            available_cpu_units_per_second = available_cpu_units_per_second + \
+                                                             indexed_available_cpu_units_per_second[
+                                                                 current_cpu_cores_selected][1]
+                            current_cpu_cores_selected = current_cpu_cores_selected + 1
+
+                        if available_cpu_units_per_second > 0:
+                            cpu_cores_usage = [0 for i in range(system.cpu_cores)]
+                            for i in range(current_cpu_cores_selected):
+                                cpu_cores_usage[indexed_available_cpu_units_per_second[i][0]] = \
+                                indexed_available_cpu_units_per_second[i][1]
+                            selected_system_index = random_system_index
+                            system_found = True
+                            attempts_count = attempts_count + 1
+
+                    else:
+                        cpu_core_index, available_cpu_units_per_second = max(enumerate(system.cpu_cores_available_units),
+                                                                             key=itemgetter(1))
+
+                        if available_cpu_units_per_second > 0:
+                            cpu_cores_usage = [0 for i in range(system.cpu_cores)]
+                            cpu_cores_usage[cpu_core_index] = available_cpu_units_per_second
+                            selected_system_index = random_system_index
+                            system_found = True
+                            attempts_count = attempts_count + 1
 
         attempts_count = attempts_count + 1
 
