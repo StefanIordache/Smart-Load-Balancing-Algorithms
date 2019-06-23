@@ -11,12 +11,12 @@ class RequestController < ApplicationController
       snapshots_counter = count_simulation_snapshots(simulation.storage_path)
 
       render json: snapshots_counter.to_json
+    else
+      render json: ""
     end
   end
 
   def get_snapshots_json_by_simulation_id_and_index
-
-    puts "primit"
 
     if params[:simulation_id].present? and params[:index].present?
       simulation = Simulation.find(params[:simulation_id])
@@ -24,7 +24,22 @@ class RequestController < ApplicationController
       snapshots = get_snapshots_from_file(simulation.storage_path, params[:index])
 
       render json: snapshots
+    else
+      render json: ""
     end
+  end
+
+  def get_data_set
+
+    puts params
+    if params[:data_set_id].present?
+      data_set = DataSet.find(params[:data_set_id])
+
+      render json: data_set
+    else
+      render json: ""
+    end
+
   end
 
 end

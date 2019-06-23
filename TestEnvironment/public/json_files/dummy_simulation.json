@@ -1,0 +1,6 @@
+{
+  "t": 1,
+  "frame_size": 20,
+  "simulation_length": 50,
+  "allocation_subset_size": 10
+}

@@ -10,18 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_14_113229) do
+ActiveRecord::Schema.define(version: 2019_06_22_202240) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "data_sets", force: :cascade do |t|
+    t.json "raw_json"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "simulations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "algorithm"
-    t.json "cluster_params"
-    t.json "jobs_params"
-    t.string "storage_path"
+    t.json "cluster"
+    t.json "params"
+    t.integer "data_set_id"
+    t.index ["data_set_id"], name: "index_simulations_on_data_set_id"
   end
 
   create_table "templates", force: :cascade do |t|

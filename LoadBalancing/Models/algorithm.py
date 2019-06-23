@@ -7,3 +7,4 @@ class Algorithm(Enum):
     PARALLELIZED_FCFS = 2
     OPTIMIZED_FCFS = 3
     MCT = 4
+    SJF = 5

@@ -5,19 +5,22 @@ class AlgorithmSimulatorController < ApplicationController
 
   def index
 
-    @algorithms = %w(FCFS PARALLELIZED-FCFS OPTIMIZED-FCFS MCT MET)
+    @algorithms = %w(FCFS SJF)
+    @data_sets = DataSet.pluck(:id)
 
   end
 
   def simulate
     info_cluster = params[:payload_cluster].to_json
-    info_jobs = params[:payload_jobs].to_json
-    simulated_algorithm = params[:simulated_algorithm]
+    info_simulation = params[:payload_simulation].to_json
+    algorithm = params[:simulated_algorithm]
+    data_set_id = params[:data_set]
 
-    simulation = Simulation.new(algorithm: simulated_algorithm, cluster_params: info_cluster, jobs_params: info_jobs, storage_path: "")
+    data_set = DataSet.find(data_set_id)
+    simulation = Simulation.new(algorithm: algorithm, cluster: info_cluster, params: info_simulation, data_set: data_set)
     simulation.save
 
-    simulation_completed_with_success = run_simulation_script simulation, info_cluster, info_jobs, simulated_algorithm
+    simulation_completed_with_success = run_simulation_script simulation, info_cluster, info_simulation, algorithm, data_set_id
 
     result = OpenStruct.new
 

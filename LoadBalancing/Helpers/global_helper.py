@@ -6,57 +6,38 @@ class Globals:
 
     __instance = None
 
-    simulation_id = -1
+    simulation_id = 0
+    data_set_id = 0
+    algorithm = None
 
-    time_precision = 0.01
-    time_precision_factor = 100
-    batch_size_in_seconds = 10
-    simulation_time = 0
-    number_of_batches = 0
-    storage_path = ""
-    storage_directory = ""
-    algorithm = Algorithm.BLANK
+    r = 0
+    t = 0
+    allocation_subset_size = 10
 
-    time_start = time.time()
-    time_jobs_generation = time.time()
-    time_simulation = time.time()
-    time_end = time.time()
-
-    cluster = []
-    current_cluster_state = []
-
-    profit = 0
+    fig = None
+    ax_list = None
 
     @staticmethod
-    def getInstance():
-        if Globals.__instance == None:
+    def get_instance():
+        if Globals.__instance is None:
             Globals()
         return Globals.__instance
 
     def __init__(self):
-        if Globals.__instance != None:
+        if Globals.__instance is not None:
             raise Exception("Globals is a singleton class!")
         else:
-            self.simulation_id = -1
-            self.time_precision = 0.01
-            self.time_precision_factor = 100
-            self.batch_size_in_seconds = 10
-            self.simulation_time = 0
-            self.number_of_batches = 0
-            self.storage_path = ""
-            self.storage_directory = ""
-            self.algorithm = Algorithm.BLANK
-            self.cluster = []
-            self.current_cluster_state = []
-            Globals.__instance = self
+            self.simulation_id = 0
+            self.data_set_id = 0
+            self.algorithm = None
 
-    def compute_batch_size_in_seconds(self, simulation_time):
-        if simulation_time < 10000:
-            self.batch_size_in_seconds = 10
-        elif 10000 <= simulation_time < 100000:
-            self.batch_size_in_seconds = 100
-        elif simulation_time >= 100000:
-            self.batch_size_in_seconds = 1000
+            self.r = 0
+            self.t = 0
+            self.allocation_subset_size = 10
+
+            self.fig = None
+            self.ax_list = None
+            Globals.__instance = self
 
 
 GLOBAL = Globals()

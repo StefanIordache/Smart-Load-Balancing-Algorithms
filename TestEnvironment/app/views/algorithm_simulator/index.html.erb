@@ -1,51 +1,57 @@
+
+
 <div class="row justify-content-md-center">
   <div class="row col col-lg-12 col-md-12">
-    <h1 class="p-3 pb-5">Generate Input and Test Load Balancing Algorithms</h1>
-  </div>
-  <div class="row col col-lg-12 col-md-12 pb-3">
-    <div class="col col-lg-3 col-md-3">
-      <button type="button" class="btn btn-outline-primary btn-lg" id="button-start-simulation">Start Simulation
-      </button>
-    </div>
-    <div class="col col-lg-3 col-md-3"></div>
-    <div class="col col-lg-3 col-md-3"></div>
-    <div class="col col-lg-3 col-md-3"></div>
+    <h1 class="p-3 pb-5">Test Load Balancing Algorithms</h1>
   </div>
 
   <div class="row col col-lg-12 col-md-12 pb-3">
     <div class="col col-lg-4 col-md-4">
+
+      <button type="button" class="btn btn-outline-primary btn-lg" id="button-start-simulation">Start Simulation
+      </button>
+      <br>
+      <br>
+
       <label for="label-cluster">
         <h5>
-          Load Balancing Algorithm
+          Algorithm & Data Set
         </h5>
       </label>
-      <%= select_tag :selector_algorithm, options_for_select(@algorithms), :class => "form-control", :include_blank => "Select one algorithm..." %>
+
+      <div class="row" style="padding-left: 5%">
+        <%= select_tag :selector_algorithm, options_for_select(@algorithms), :class => "form-control", :style => "width:40%;", :include_blank => "Algorithm..." %>
+        <div style="width: 10%"></div>
+        <%= select_tag :selector_data_set, options_for_select(@data_sets), :class => "form-control", :style => "width:40%;", :onchange => "triggerDataSetTooltipUpdate();", :include_blank => "Data Set..." %>
+        <i id="data_set_tooltip" class="fas fa-info-circle"></i>
+
+      </div>
+      <br>
+
+      <label for="label-cluster">
+        <h4>
+          Cluster Builder
+        </h4>
+      </label>
+
+      <div id="jsoneditor-cluster" class="pt-3 pb-4" style="width: 100%; height: 35%;"></div>
+
+      <label for="label-jobs">
+        <h4>
+          Simulation Description
+        </h4>
+      </label>
+
+      <div id="jsoneditor-simulation" class="pt-3 pb-4" style="width: 100%; height: 35%;"></div>
+
     </div>
+
+
+
     <div class="col col-lg-8 col-md-8"></div>
   </div>
 
-  <div class="row col col-lg-12 col-md-12">
-    <div class="col col-lg-6 col-md-6">
-      <label for="label-cluster">
-        <h4>
-          Cluster Description
-        </h4>
-      </label>
 
-      <div id="jsoneditor-cluster" class="pt-3 pb-4" style="width: 100%; height: 200%;"></div>
-    </div>
-
-    <div class="col col-lg-6 col-md-6">
-      <label for="label-jobs">
-        <h4>
-          Jobs Builder
-        </h4>
-      </label>
-
-      <div id="jsoneditor-jobs" class="pt-3 pb-4" style="width: 100%; height: 200%;"></div>
-    </div>
-
-  </div>
 </div>
 
 <div id="loading-screen-animation" style="display: none">
@@ -59,34 +65,35 @@
 
 <script>
     let containerCluster = document.getElementById("jsoneditor-cluster");
-    let contatinerJobs = document.getElementById("jsoneditor-jobs");
+    let containerSimulation = document.getElementById("jsoneditor-simulation");
     let options = {
         mode: "code"
     };
     let editorCluster = new JSONEditor(containerCluster, options);
-    let editorJobs = new JSONEditor(contatinerJobs, options);
+    let editorSimulation = new JSONEditor(containerSimulation, options);
 
     $(function () {
         const dummyClusterJsonUrl = "/dummy/cluster";
-        const dummyJobsJsonUrl = "/dummy/jobs";
+        const dummySimulationJsonUrl = "/dummy/simulation";
 
         axios.get(dummyClusterJsonUrl).then(function (response) {
             editorCluster.set(response.data);
         });
 
-        axios.get(dummyJobsJsonUrl).then(function (response) {
-            editorJobs.set(response.data);
+        axios.get(dummySimulationJsonUrl).then(function (response) {
+            editorSimulation.set(response.data);
         });
 
         $('#modalStatistics').modal({ show: false})
     });
 
-    function callSimulation(url, clusterJson, jobsJson, selectedAlgorithm) {
+    function callSimulation(url, clusterJson, simulationJson, selectedAlgorithm, selectedDataSet) {
         return axios
             .post(url, {
                 payload_cluster: clusterJson,
-                payload_jobs: jobsJson,
-                simulated_algorithm: selectedAlgorithm
+                payload_simulation: simulationJson,
+                simulated_algorithm: selectedAlgorithm,
+                data_set: selectedDataSet
             })
             .then(function (response) {
                 return response;
@@ -101,18 +108,19 @@
 
     $("#button-start-simulation").click(function () {
         let clusterJson = editorCluster.get();
-        let jobsJson = editorJobs.get();
+        let simulationJson = editorSimulation.get();
         let selectedAlgorithm = $("#selector_algorithm :selected").val();
+        let selectedDataSet = $('#selector_data_set :selected').val();
 
         if (jQuery.isEmptyObject(clusterJson)) {
             swal({
                 icon: "error",
                 text: "Please fill in cluster details."
             });
-        } else if (jQuery.isEmptyObject(jobsJson)) {
+        } else if (jQuery.isEmptyObject(simulationJson)) {
             swal({
                 icon: "error",
-                text: "Please fill in task/job simulation details."
+                text: "Please fill in simulation details."
             });
         } else if (selectedAlgorithm === undefined || selectedAlgorithm === "") {
             swal({
@@ -123,7 +131,7 @@
             const postUrl = "/simulate";
             startLoadingScreenAnimation();
             
-            callSimulation(postUrl, clusterJson, jobsJson, selectedAlgorithm).then(function (response) {
+            callSimulation(postUrl, clusterJson, simulationJson, selectedAlgorithm, selectedDataSet).then(function (response) {
                 stopLoadingScreenAnimation();
 
                 //popResultsModal(response.data.table.simulation)
@@ -138,5 +146,53 @@
             });
 
         }
+
     });
+
+    let tippyInstance = null;
+
+    function getDataSet(url, dataSetId) {
+        return axios
+            .get(url, {
+                data_set_id: dataSetId
+            })
+            .then(function (response) {
+                return response;
+            })
+            .catch(function (error) {
+            });
+    }
+
+    function triggerDataSetTooltipUpdate() {
+        let value = $("#selector_data_set").val();
+        let getDataSetUrl = "/request/data_set";
+
+        console.log(value);
+
+        if (!isNaN(value)) {
+
+            axios.get(getDataSetUrl, { params: {
+                    data_set_id: value
+                }
+            }).then(function (response) {
+
+                if (tippyInstance == null) {
+                    tippyInstance = tippy('#data_set_tooltip', { content: response.data.raw_json, placement: 'right'});
+                } else {
+                    tippyInstance[0].setContent(response.data.raw_json);
+                }
+            });
+        } else {
+            if (tippyInstance == null) {
+                tippyInstance = tippy('#data_set_tooltip', { content: '', placement: 'right'});
+            } else {
+                tippyInstance[0].setContent('');
+            }
+        }
+    }
+
 </script>
+
+
+<script src="https://unpkg.com/tippy.js@4"></script>
+<script src="https://unpkg.com/popper.js@1"></script>

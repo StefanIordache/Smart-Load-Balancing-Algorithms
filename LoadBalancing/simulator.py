@@ -22,20 +22,10 @@ def set_algorithm(algorithm):
         GLOBAL.algorithm = Algorithm.OPTIMIZED_FCFS
     elif algorithm == 'MCT':
         GLOBAL.algorithm = Algorithm.MCT
+    elif algorithm == 'SJF':
+        GLOBAL.algorithm = Algorithm.SJF
     else:
         GLOBAL.algorithm = Algorithm.BLANK
-
-
-def create_storage_path():
-    base_path = str(Path(os.path.dirname(__file__)).parent)
-
-    storage_path = create_directory(base_path + "/TestEnvironment/app/storage")
-    storage_path = create_directory(storage_path + "/simulations")
-    storage_directory = str(GLOBAL.simulation_id) + " - " + GLOBAL.algorithm.name + " - " + str(datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'))
-    storage_path = create_directory(storage_path + '/' + storage_directory)
-
-    GLOBAL.storage_directory = storage_directory
-    GLOBAL.storage_path = storage_path
 
 
 if __name__ == "__main__":
@@ -67,31 +57,20 @@ if __name__ == "__main__":
         simulation_id = int(sock.recv(1024).decode())
         GLOBAL.simulation_id = simulation_id
 
+        json_cluster = sock.recv(1024).decode()
+
+        systems = unpack_cluster(json_cluster)
+
+        json_simulation = sock.recv(1024).decode()
+
         simulated_algorithm = sock.recv(1024).decode()
         simulated_algorithm = simulated_algorithm.rstrip()
 
         set_algorithm(simulated_algorithm)
 
-        sock.sendall("OK_ALGORITHM".encode())
+        data_set_id = int(sock.recv(1024).decode())
 
-        json_cluster = sock.recv(1024).decode()
-
-        systems = unpack_cluster(json_cluster)
-
-        sock.sendall("OK_CLUSTER".encode())
-
-        json_jobs = sock.recv(1024).decode()
-
-        create_storage_path()
-
-        simulation_params = generate_jobs(json_jobs)
-
-        generation_time = time.time()
-        print("Generation time: " + str(generation_time - connection_time))
-
-        sock.sendall("OK_JOBS".encode())
-
-        start_simulation(systems, simulation_params)
+        # start_simulation(systems, simulation_params)
 
         time.sleep(0.1)
         sock.sendall("FINISHED".encode())
@@ -105,5 +84,5 @@ if __name__ == "__main__":
     sock.close()
 
     end = time.time()
-    print("Simulation time: " + str(end - generation_time))
+    print("Simulation time: " + str(end - connection_time))
 
