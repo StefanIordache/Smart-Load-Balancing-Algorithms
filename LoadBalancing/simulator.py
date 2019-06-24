@@ -6,26 +6,11 @@ import datetime
 import time
 import random
 
-from Models.system import *
-from Helpers.json_helper import *
-from Helpers.jobs_generator_helper import *
+from Models.cluster import *
+from Models.simulation import *
 from Helpers.simulation_helper import *
 from Helpers.global_helper import *
-
-
-def set_algorithm(algorithm):
-    if algorithm == 'FCFS':
-        GLOBAL.algorithm = Algorithm.FCFS
-    elif algorithm == 'PARALLELIZED-FCFS':
-        GLOBAL.algorithm = Algorithm.PARALLELIZED_FCFS
-    elif algorithm == 'OPTIMIZED-FCFS':
-        GLOBAL.algorithm = Algorithm.OPTIMIZED_FCFS
-    elif algorithm == 'MCT':
-        GLOBAL.algorithm = Algorithm.MCT
-    elif algorithm == 'SJF':
-        GLOBAL.algorithm = Algorithm.SJF
-    else:
-        GLOBAL.algorithm = Algorithm.BLANK
+from Helpers.io_helper import *
 
 
 if __name__ == "__main__":
@@ -57,27 +42,38 @@ if __name__ == "__main__":
         simulation_id = int(sock.recv(1024).decode())
         GLOBAL.simulation_id = simulation_id
 
-        json_cluster = sock.recv(1024).decode()
+        print(simulation_id)
 
-        systems = unpack_cluster(json_cluster)
+        cluster_info = sock.recv(1024).decode()
 
-        json_simulation = sock.recv(1024).decode()
+        cluster = Cluster.unpack_cluster(cluster_info)
+
+        print(cluster)
+
+        simulation_info = sock.recv(1024).decode()
+
+        simulation = Simulation.unpack_simulation_info(simulation_info)
+
+        print(simulation)
 
         simulated_algorithm = sock.recv(1024).decode()
         simulated_algorithm = simulated_algorithm.rstrip()
 
+        print(simulated_algorithm)
+
         set_algorithm(simulated_algorithm)
 
         data_set_id = int(sock.recv(1024).decode())
+        data_set = read_data_set(data_set_id)
 
-        # start_simulation(systems, simulation_params)
+        print(len(data_set))
+
+        start_simulation(cluster, simulation, data_set)
 
         time.sleep(0.1)
         sock.sendall("FINISHED".encode())
         time.sleep(0.1)
         sock.sendall("NO ERRORS".encode())
-        time.sleep(0.1)
-        sock.sendall(GLOBAL.storage_directory.encode())
 
         break
 

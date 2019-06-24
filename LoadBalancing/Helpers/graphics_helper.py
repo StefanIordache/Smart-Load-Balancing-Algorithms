@@ -1,4 +1,4 @@
-from Models.job import *
+from Models.task import *
 from Helpers.io_helper import *
 from Helpers.global_helper import *
 
@@ -13,18 +13,18 @@ import matplotlib.animation as animation
 import time
 
 
-def display_cluster_grid(jobs_scheduled):
+def display_cluster_grid(cluster, simulation, tasks_scheduled):
 
-    cluster_cpu_usage = np.zeros((20 * RL_GLOBAL.t, RL_GLOBAL.r + 1), dtype=int)
-    cluster_ram_usage = np.zeros((20 * RL_GLOBAL.t, RL_GLOBAL.r + 1), dtype=int)
+    cluster_cpu_usage = np.zeros((simulation.frame_size * simulation.t, cluster.r + 1), dtype=int)
+    cluster_ram_usage = np.zeros((simulation.frame_size * simulation.t, cluster.r + 1), dtype=int)
 
-    cluster_cpu_usage[:, 0] = [i for i in range(20 * RL_GLOBAL.t)]
-    cluster_ram_usage[:, 0] = [i for i in range(20 * RL_GLOBAL.t)]
+    cluster_cpu_usage[:, 0] = [i for i in range(simulation.frame_size * simulation.t)]
+    cluster_ram_usage[:, 0] = [i for i in range(simulation.frame_size * simulation.t)]
 
-    for i in range(0, 20 * RL_GLOBAL.t):
-        if len(jobs_scheduled) > 0:
-            for job in jobs_scheduled:
-                if job.start <= i <= job.finish:
+    for i in range(0, simulation.frame_size * simulation.t):
+        if len(tasks_scheduled) > 0:
+            for task in tasks_scheduled:
+                if task.start <= i <= task.finish:
                     cpu_empty_index = 1
                     ram_empty_index = 1
 
@@ -34,31 +34,31 @@ def display_cluster_grid(jobs_scheduled):
                     while cluster_ram_usage[i, ram_empty_index] != 0:
                         ram_empty_index = ram_empty_index + 1
 
-                    for j in range(cpu_empty_index, job.cpu_units + cpu_empty_index):
-                        cluster_cpu_usage[i, j] = job.id
+                    for j in range(cpu_empty_index, task.cpu_units + cpu_empty_index):
+                        cluster_cpu_usage[i, j] = task.id
 
-                    for j in range(ram_empty_index, job.ram_size + ram_empty_index):
-                        cluster_ram_usage[i, j] = job.id
+                    for j in range(ram_empty_index, task.ram_size + ram_empty_index):
+                        cluster_ram_usage[i, j] = task.id
 
-    RL_GLOBAL.fig, RL_GLOBAL.ax_list = plt.subplots(1, 2)
+    GLOBAL.fig, GLOBAL.ax_list = plt.subplots(1, 2, figsize=(20, 10))
 
-    RL_GLOBAL.ax_list[0].matshow(cluster_cpu_usage, cmap=plt.cm.tab20c)
-    RL_GLOBAL.ax_list[0].set_title("CPU")
-    RL_GLOBAL.ax_list[0].axis("off")
-    for i in range(RL_GLOBAL.r + 1):
-        for j in range(20 * RL_GLOBAL.t):
+    GLOBAL.ax_list[0].matshow(cluster_cpu_usage, cmap=plt.cm.tab20c)
+    GLOBAL.ax_list[0].set_title("CPU")
+    GLOBAL.ax_list[0].axis("off")
+    for i in range(cluster.r + 1):
+        for j in range(simulation.frame_size * simulation.t):
             c = cluster_cpu_usage[j, i]
-            RL_GLOBAL.ax_list[0].text(i, j, str(c), va='center', ha='center')
+            GLOBAL.ax_list[0].text(i, j, str(c), va='center', ha='center')
 
-    RL_GLOBAL.ax_list[1].matshow(cluster_ram_usage, cmap=plt.cm.tab20c)
-    RL_GLOBAL.ax_list[1].set_title("RAM")
-    RL_GLOBAL.ax_list[1].axis("off")
-    for i in range(RL_GLOBAL.r + 1):
-        for j in range(20 * RL_GLOBAL.t):
+    GLOBAL.ax_list[1].matshow(cluster_ram_usage, cmap=plt.cm.tab20c)
+    GLOBAL.ax_list[1].set_title("RAM")
+    GLOBAL.ax_list[1].axis("off")
+    for i in range(cluster.r + 1):
+        for j in range(simulation.frame_size * simulation.t):
             c = cluster_ram_usage[j, i]
-            RL_GLOBAL.ax_list[1].text(i, j, str(c), va='center', ha='center')
+            GLOBAL.ax_list[1].text(i, j, str(c), va='center', ha='center')
 
-    RL_GLOBAL.fig.suptitle("t = 0", fontsize=16)
+    GLOBAL.fig.suptitle("t = 0", fontsize=16)
 
     plt.ion()
     plt.show()
@@ -66,24 +66,24 @@ def display_cluster_grid(jobs_scheduled):
     time.sleep(.2)
 
 
-def update_cluster_grid(t, jobs_scheduled):
+def update_cluster_grid(t, cluster, simulation, tasks_scheduled):
 
-    cluster_cpu_usage = np.zeros((20 * RL_GLOBAL.t, RL_GLOBAL.r + 1), dtype=int)
-    cluster_ram_usage = np.zeros((20 * RL_GLOBAL.t, RL_GLOBAL.r + 1), dtype=int)
+    cluster_cpu_usage = np.zeros((simulation.frame_size * simulation.t, cluster.r + 1), dtype=int)
+    cluster_ram_usage = np.zeros((simulation.frame_size * simulation.t, cluster.r + 1), dtype=int)
 
-    if t >= 20 * RL_GLOBAL.t / 2:
-        min_t = int(t - (20 * RL_GLOBAL.t / 2) + 1)
-        max_t = int(t + (20 * RL_GLOBAL.t / 2))
+    if t >= simulation.frame_size * simulation.t / 2:
+        min_t = int(t - (simulation.frame_size * simulation.t / 2) + 1)
+        max_t = int(t + (simulation.frame_size * simulation.t / 2))
 
         cluster_cpu_usage[:, 0] = [i for i in range(min_t, max_t + 1)]
         cluster_ram_usage[:, 0] = [i for i in range(min_t, max_t + 1)]
 
         temp_t = min_t
 
-        for i in range(0, 20 * RL_GLOBAL.t):
-            if len(jobs_scheduled) > 0:
-                for job in jobs_scheduled:
-                    if job.start <= temp_t <= job.finish:
+        for i in range(0, simulation.frame_size * simulation.t):
+            if len(tasks_scheduled) > 0:
+                for task in tasks_scheduled:
+                    if task.start <= temp_t <= task.finish:
                         cpu_empty_index = 1
                         ram_empty_index = 1
 
@@ -93,21 +93,21 @@ def update_cluster_grid(t, jobs_scheduled):
                         while cluster_ram_usage[i, ram_empty_index] != 0:
                             ram_empty_index = ram_empty_index + 1
 
-                        for j in range(cpu_empty_index, job.cpu_units + cpu_empty_index):
-                            cluster_cpu_usage[i, j] = job.id
+                        for j in range(cpu_empty_index, task.cpu_units + cpu_empty_index):
+                            cluster_cpu_usage[i, j] = task.id
 
-                        for j in range(ram_empty_index, job.ram_size + ram_empty_index):
-                            cluster_ram_usage[i, j] = job.id
+                        for j in range(ram_empty_index, task.ram_size + ram_empty_index):
+                            cluster_ram_usage[i, j] = task.id
             temp_t = temp_t + 1
 
     else:
-        cluster_cpu_usage[:, 0] = [i for i in range(20 * RL_GLOBAL.t)]
-        cluster_ram_usage[:, 0] = [i for i in range(20 * RL_GLOBAL.t)]
+        cluster_cpu_usage[:, 0] = [i for i in range(simulation.frame_size * simulation.t)]
+        cluster_ram_usage[:, 0] = [i for i in range(simulation.frame_size * simulation.t)]
 
-        for i in range(0, 20 * RL_GLOBAL.t):
-            if len(jobs_scheduled) > 0:
-                for job in jobs_scheduled:
-                    if job.start <= i <= job.finish:
+        for i in range(0, simulation.frame_size * simulation.t):
+            if len(tasks_scheduled) > 0:
+                for task in tasks_scheduled:
+                    if task.start <= i <= task.finish:
                         cpu_empty_index = 1
                         ram_empty_index = 1
 
@@ -117,30 +117,30 @@ def update_cluster_grid(t, jobs_scheduled):
                         while cluster_ram_usage[i, ram_empty_index] != 0:
                             ram_empty_index = ram_empty_index + 1
 
-                        for j in range(cpu_empty_index, job.cpu_units + cpu_empty_index):
-                            cluster_cpu_usage[i, j] = job.id
+                        for j in range(cpu_empty_index, task.cpu_units + cpu_empty_index):
+                            cluster_cpu_usage[i, j] = task.id
 
-                        for j in range(ram_empty_index, job.ram_size + ram_empty_index):
-                            cluster_ram_usage[i, j] = job.id
+                        for j in range(ram_empty_index, task.ram_size + ram_empty_index):
+                            cluster_ram_usage[i, j] = task.id
 
-    RL_GLOBAL.ax_list[0].cla()
-    RL_GLOBAL.ax_list[1].cla()
+    GLOBAL.ax_list[0].cla()
+    GLOBAL.ax_list[1].cla()
 
-    RL_GLOBAL.ax_list[0].matshow(cluster_cpu_usage, cmap=plt.cm.tab20c)
-    RL_GLOBAL.ax_list[0].set_title("CPU")
-    for i in range(RL_GLOBAL.r + 1):
-        for j in range(20 * RL_GLOBAL.t):
+    GLOBAL.ax_list[0].matshow(cluster_cpu_usage, cmap=plt.cm.tab20c)
+    GLOBAL.ax_list[0].set_title("CPU")
+    for i in range(cluster.r + 1):
+        for j in range(simulation.frame_size * simulation.t):
             c = cluster_cpu_usage[j, i]
-            RL_GLOBAL.ax_list[0].text(i, j, str(c), va='center', ha='center')
+            GLOBAL.ax_list[0].text(i, j, str(c), va='center', ha='center')
 
-    RL_GLOBAL.ax_list[1].matshow(cluster_ram_usage, cmap=plt.cm.tab20c)
-    RL_GLOBAL.ax_list[1].set_title("RAM")
-    for i in range(RL_GLOBAL.r + 1):
-        for j in range(20 * RL_GLOBAL.t):
+    GLOBAL.ax_list[1].matshow(cluster_ram_usage, cmap=plt.cm.tab20c)
+    GLOBAL.ax_list[1].set_title("RAM")
+    for i in range(cluster.r + 1):
+        for j in range(simulation.frame_size * simulation.t):
             c = cluster_ram_usage[j, i]
-            RL_GLOBAL.ax_list[1].text(i, j, str(c), va='center', ha='center')
+            GLOBAL.ax_list[1].text(i, j, str(c), va='center', ha='center')
 
-    RL_GLOBAL.fig.suptitle("t = " + str(t), fontsize=16)
+    GLOBAL.fig.suptitle("t = " + str(t), fontsize=16)
 
     plt.draw()
     plt.pause(.2)

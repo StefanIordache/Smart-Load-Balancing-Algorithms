@@ -11,8 +11,7 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 
 
-def run_SJF_on_data_set(cluster, simulation, data_set):
-
+def run_FCFS_on_data_set(cluster, simulation, data_set):
     tasks_evaluated = 0
     total_slowdown = 0
     total_completion_time = 0
@@ -21,8 +20,8 @@ def run_SJF_on_data_set(cluster, simulation, data_set):
         task_set = SortedList(key=lambda x: x['arrival'])
         task_set.update(item)
 
-        tasks_waiting = SortedList(key=lambda x: x['execution'])
-        tasks_scheduled = []
+        tasks_waiting = SortedList(key=lambda x: x['arrival'])
+        tasks_scheduled = SortedList(key=lambda x: x.finish)
 
         t = 0
 
@@ -38,7 +37,7 @@ def run_SJF_on_data_set(cluster, simulation, data_set):
                     allocated, shortest_task = try_load_task(shortest_task, t, tasks_scheduled, cluster)
 
                     if allocated is True:
-                        tasks_scheduled.append(shortest_task)
+                        tasks_scheduled.add(shortest_task)
                         tasks_waiting.pop(0)
                     else:
                         allocation_failed = True
@@ -62,7 +61,7 @@ def run_SJF_on_data_set(cluster, simulation, data_set):
     return average_completion_time, average_slowdown
 
 
-def run_SJF_on_task_set_from_data_set(cluster, simulation, data_set, task_set_index, with_grid_display):
+def run_FCFS_on_task_set_from_data_set(cluster, simulation, data_set, task_set_index, with_grid_display):
 
     task_set = SortedList(key=lambda x: x['arrival'])
     task_set.update(data_set[task_set_index])
@@ -70,11 +69,14 @@ def run_SJF_on_task_set_from_data_set(cluster, simulation, data_set, task_set_in
     total_slowdown = 0
     total_completion_time = 0
 
-    cluster_cpu_usage = np.zeros((1, cluster.r), dtype=int)
-    cluster_ram_usage = np.zeros((1, cluster.r), dtype=int)
+    cluster_cpu_usage = np.zeros((simulation.frame_size * simulation.t, cluster.r + 1), dtype=int)
+    cluster_ram_usage = np.zeros((simulation.frame_size * simulation.t, cluster.r + 1), dtype=int)
 
-    tasks_waiting = SortedList(key=lambda x: x['execution'])
-    tasks_scheduled = []
+    cluster_cpu_usage[:, 0] = [i for i in range(simulation.frame_size * simulation.t)]
+    cluster_ram_usage[:, 0] = [i for i in range(simulation.frame_size * simulation.t)]
+
+    tasks_waiting = SortedList(key=lambda x: x['arrival'])
+    tasks_scheduled = SortedList(key=lambda x: x.finish)
 
     t = 0
 
@@ -90,11 +92,10 @@ def run_SJF_on_task_set_from_data_set(cluster, simulation, data_set, task_set_in
                 allocated, shortest_task = try_load_task(shortest_task, t, tasks_scheduled, cluster)
 
                 if allocated is True:
-                    tasks_scheduled.append(shortest_task)
+                    tasks_scheduled.add(shortest_task)
                     tasks_waiting.pop(0)
                 else:
                     allocation_failed = True
-
         if with_grid_display is True:
             if t == 0:
                 display_cluster_grid(cluster, simulation, tasks_scheduled)
@@ -119,7 +120,7 @@ def run_SJF_on_task_set_from_data_set(cluster, simulation, data_set, task_set_in
     print(average_completion_time)
     print(average_slowdown)
 
-    return t
+    return average_completion_time, average_slowdown
 
 
 def count_running_tasks(t, tasks_scheduled):

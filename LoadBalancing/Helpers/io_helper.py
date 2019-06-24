@@ -55,7 +55,8 @@ def write_data_set(data_set_storage_path, data_set):
 
 
 def read_data_set(data_set_id):
-    data_set_path = str(Path(os.path.dirname(__file__)).parent) + "TestEnvironment/app/storage/data_sets/" + str(data_set_id)
+    data_set_path = str(Path(Path(os.path.dirname(__file__)).parent).parent) + "/TestEnvironment/app/storage/data_sets/" + str(data_set_id)
+    print(data_set_path)
 
     data_set = []
 
