@@ -73,7 +73,7 @@
       <div class="row" style="padding-left: 5%">
         <%= select_tag :selector_algorithm, options_for_select(@algorithms), :class => "form-control", :style => "width:40%;", :include_blank => "Algorithm..." %>
         <div style="width: 10%"></div>
-        <%= select_tag :selector_data_set, options_for_select(@data_sets), :class => "form-control", :style => "width:40%;", :onchange => "triggerDataSetTooltipUpdate();", :include_blank => "Data Set..." %>
+        <%= select_tag :selector_data_set, options_for_select(@data_sets, :id), :class => "form-control", :style => "width:40%;", :onchange => "triggerDataSetTooltipUpdate();", :include_blank => "Data Set..." %>
         <i id="data_set_tooltip" class="fas fa-info-circle"></i>
 
       </div>
@@ -192,7 +192,12 @@
         } else if (selectedAlgorithm === undefined || selectedAlgorithm === "") {
             swal({
                 icon: "error",
-                text: "Please selected one algorithm that should be tested."
+                text: "Please select one algorithm that should be tested."
+            });
+        } else if (selectedDataSet === undefined || selectedDataSet === "") {
+            swal({
+                icon: "error",
+                text: "Please select one data set."
             });
         } else {
             const postUrl = "/simulate";

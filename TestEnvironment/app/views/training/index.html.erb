@@ -1,0 +1,233 @@
+<div class="row justify-content-md-center">
+  <div class="row col col-lg-12 col-md-12">
+    <h1 class="p-3 pb-5">Train Load Balancing Policy</h1>
+  </div>
+
+  <div class="row col col-lg-12 col-md-12 pb-3" style="height: 70vh">
+    <!-- <div class="col col-lg-3 col-md-3"></div>-->
+
+    <div class="col col-lg-6 col-md-6 border border-primary">
+      <br>
+      <br>
+
+      <button type="button" class="btn btn-outline-primary btn-lg justify-content-center" id="button-start-training">Start
+        Training
+      </button>
+      <br>
+      <br>
+
+      <label for="label-cluster">
+        <h5>
+          Training Type & Data Set
+        </h5>
+      </label>
+
+      <div class="row" style="padding-left: 5%">
+        <%= select_tag :selector_training_type, options_for_select(['SUPERVISED', 'REINFORCE']), :class => "form-control", :style => "width:40%;", :include_blank => "Training Type..." %>
+        <div style="width: 10%"></div>
+        <%= select_tag :selector_data_set, options_for_select(@data_sets, :id), :class => "form-control", :style => "width:40%;", :onchange => "triggerDataSetTooltipUpdate();", :include_blank => "Data Set..." %>
+        <i id="data_set_tooltip" class="fas fa-info-circle"></i>
+
+      </div>
+      <br>
+
+      <label for="label-cluster">
+        <h5>
+          Number of Epochs
+        </h5>
+      </label>
+
+      <div class="row" style="padding-left: 5%; width: 95%;">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">10-10000</span>
+          </div>
+          <input type="text" class="form-control" placeholder="Number of Epochs" aria-label="Number of Epochs" id="number-of-epochs">
+        </div>
+
+      </div>
+      <br>
+
+
+      <label for="label-cluster">
+        <h5>
+          Output
+        </h5>
+      </label>
+
+      <div class="row" style="padding-left: 5%;width: 95%;">
+        <label for="basic-url">Output File Format</label>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">reinforce-policy</span>
+          </div>
+          <input type="text" class="form-control" id="output-file-format">
+        </div>
+      </div>
+      <div class="row" style="padding-left: 5%;width: 95%;">
+        <label for="basic-url">Output Frequency</label>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">5-100</span>
+          </div>
+          <input type="text" class="form-control" id="output-frequency">
+        </div>
+      </div>
+      <br>
+
+
+    </div>
+
+    <div class="col col-lg-6 col-md-6"></div>
+
+  </div>
+
+
+</div>
+
+
+<script>
+
+    function callTraining(url, selectedTrainingType, selectedDataSet, numberOfEpochs, outputFileFormat, outputFrequency) {
+        return axios
+            .post(url, {
+                selected_training_type: selectedTrainingType,
+                selected_data_set: selectedDataSet,
+                number_of_epochs: numberOfEpochs,
+                output_file_format: outputFileFormat,
+                output_frequency: outputFrequency
+            })
+            .then(function (response) {
+                return response;
+            })
+            .catch(function (error) {
+                swal({
+                    icon: "error",
+                    text: "Error!"
+                });
+            });
+    }
+
+    $("#button-start-training").click(function () {
+        ;
+        let selectedTrainingType = $("#selector_training_type :selected").val();
+        let selectedDataSet = $('#selector_data_set :selected').val();
+        let numberOfEpochs = $('#number-of-epochs').val();
+        let outputFileFormat = $('#output-file-format').val();
+        let outputFrequency = $('#output-frequency').val();
+
+
+        if (selectedTrainingType === undefined || selectedTrainingType === "") {
+            swal({
+                icon: "error",
+                text: "Please select your training type: REINFORCE or SUPERVISED."
+            });
+        } else if (selectedDataSet === undefined || selectedDataSet === "") {
+            swal({
+                icon: "error",
+                text: "Please select one data set."
+            });
+        } else if (numberOfEpochs == undefined || numberOfEpochs == "") {
+            swal({
+                icon: "error",
+                text: "Please enter maximum number of epochs as an integer value."
+            });
+        } else if (isNaN(numberOfEpochs)) {
+            swal({
+                icon: "error",
+                text: "Number of epochs should be an integer."
+            });
+        } else if (!isNaN(numberOfEpochs) && (parseInt(numberOfEpochs) > 10000 || parseInt(numberOfEpochs) < 10)) {
+            swal({
+                icon: "error",
+                text: "Number of epochs should be between 10 and 10000."
+            });
+        } else if (outputFrequency == undefined || outputFrequency == "") {
+            swal({
+                icon: "error",
+                text: "Please enter output frequency as an integer value."
+            });
+        } else if (isNaN(outputFrequency)) {
+            swal({
+                icon: "error",
+                text: "Output frequency should be an integer."
+            });
+        } else if (!isNaN(outputFrequency) && (parseInt(outputFrequency) > 100 || parseInt(outputFrequency) < 5)) {
+            swal({
+                icon: "error",
+                text: "Output frequency should be between 5 and 100."
+            });
+        } else if (outputFileFormat == undefined || outputFileFormat == "") {
+            swal({
+                icon: "error",
+                text: "Please provide an output file format."
+            });
+        } else if (!isNaN(outputFrequency) && !isNaN(numberOfEpochs) && parseInt(numberOfEpochs) < parseInt(outputFrequency)) {
+            swal({
+                icon: "error",
+                text: "Number of epochs should be higher than output frequency."
+            });
+        } else {
+            const postUrl = "/training/start_training";
+
+            callTraining(postUrl, selectedTrainingType, selectedDataSet, numberOfEpochs, outputFileFormat, outputFrequency).then(function (response) {
+
+            }).catch(function (response) {
+                console.log("error");
+                swal({
+                    icon: "error",
+                    text: "Internal server error."
+                });
+            });
+
+        }
+
+    });
+
+    let tippyInstance = null;
+
+    function getDataSet(url, dataSetId) {
+        return axios
+            .get(url, {
+                data_set_id: dataSetId
+            })
+            .then(function (response) {
+                return response;
+            })
+            .catch(function (error) {
+            });
+    }
+
+    function triggerDataSetTooltipUpdate() {
+        let value = $("#selector_data_set").val();
+        let getDataSetUrl = "/data_sets/data_set";
+
+        console.log(value);
+
+        if (!isNaN(value)) {
+
+            axios.get(getDataSetUrl, {
+                params: {
+                    data_set_id: value
+                }
+            }).then(function (response) {
+
+                if (tippyInstance == null) {
+                    tippyInstance = tippy('#data_set_tooltip', {content: response.data.raw_json, placement: 'right'});
+                } else {
+                    tippyInstance[0].setContent(response.data.raw_json);
+                }
+            });
+        } else {
+            if (tippyInstance == null) {
+                tippyInstance = tippy('#data_set_tooltip', {content: '', placement: 'right'});
+            } else {
+                tippyInstance[0].setContent('');
+            }
+        }
+    }
+</script>
+
+
+<script src="https://unpkg.com/tippy.js@4"></script>
+<script src="https://unpkg.com/popper.js@1"></script>

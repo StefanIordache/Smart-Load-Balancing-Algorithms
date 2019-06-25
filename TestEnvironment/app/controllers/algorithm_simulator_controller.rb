@@ -6,7 +6,7 @@ class AlgorithmSimulatorController < ApplicationController
   def index
 
     @algorithms = %w(FCFS SJF)
-    @data_sets = DataSet.pluck(:id)
+    @data_sets = DataSet.pluck(:name, :id)
 
   end
 

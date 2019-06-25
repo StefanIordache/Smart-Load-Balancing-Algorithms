@@ -7,6 +7,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
 
+<!--<script src="https://code.jquery.com/jquery-3.3.1.js"></script>-->
+<script src="https://unpkg.com/tippy.js@4"></script>
+<script src="https://unpkg.com/popper.js@1"></script>
+
+<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+
 
 <div class="row justify-content-md-center">
   <div class="row col col-lg-12 col-md-12">
@@ -162,7 +169,7 @@
                         text: "Data Set name is not unique. Please change it."
                     });
                 } else {
-                    const postUrl = "/create_new_data_set";
+                    const postUrl = "data_sets/create_new_data_set";
                     startLoadingScreenAnimation();
 
                     callDataSetGenerator(postUrl, dataSetJson, dataSetName).then(function (response) {
@@ -262,10 +269,5 @@
     }
 </script>
 
-<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-<script src="https://unpkg.com/tippy.js@4"></script>
-<script src="https://unpkg.com/popper.js@1"></script>
 
-<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 

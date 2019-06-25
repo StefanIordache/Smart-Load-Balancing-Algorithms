@@ -10,14 +10,17 @@ import policy_gradient_with_supervised_learning
 import slowdown_to_cdf
 
 
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 os.environ["THEANO_FLAGS"] = "device=cuda,floatX=float32"
+
 
 def script_usage():
     print('--training_type <type of training> \n'
           '--rl_file <parameter file for rl network> \n'
           '--v_file <parameter file for v network> \n'
           '--q_file <parameter file for q network> \n'
+          '--data_set_id <data set id> \n'
+          '--number_of_epochs <number of epochs> \n'
           '--out_freq <network output frequency> \n'
           '--out_file <output file name> \n'
           '--log <log file name> \n'
@@ -45,6 +48,8 @@ def main():
                       "rl_file=",
                       "v_file=",
                       "q_file=",
+                      "data_set_id=",
+                      "number_of_epochs=",
                       "out_freq=",
                       "out_file=",
                       "log=",
@@ -67,6 +72,10 @@ def main():
             v_resume = arg
         elif opt in ("-q", "--q_file"):
             q_resume = arg
+        elif opt in ("-ds", "--data_set_id"):
+            pa.data_set_id = int(arg)
+        elif opt in ("-ne", "--number_of_epochs"):
+            pa.num_epochs = int(arg)
         elif opt in ("-f", "--out_freq"):
             pa.output_freq = int(arg)
         elif opt in ("-o", "--out_file"):
@@ -87,8 +96,8 @@ def main():
         policy_gradient_with_supervised_learning.launch(pa, rl_resume, render, repre='image', end='all_done')
     elif type_exp == 'reinforce':
         policy_gradient_with_reinforcement_learning.launch(pa, rl_resume, render, repre='image', end='all_done')
-    elif type_exp == 'test':
-        slowdown_to_cdf.launch(pa, rl_resume, render, True)
+    # elif type_exp == 'test':
+    #     slowdown_to_cdf.launch(pa, rl_resume, render, True)
     else:
         print("ERROR! Invalid training task: " + str(type_exp))
         exit(1)

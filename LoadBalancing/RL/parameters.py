@@ -9,9 +9,11 @@ class Parameters:
 
         self.output_filename = 'data/tmp'
 
+        self.data_set_id = None        # (Data set id)
+
         self.num_epochs = 1000         # (Number of training epochs)
         self.simu_len = 50             # (Cycle length)
-        self.num_ex = 10              # (Number of task sets)
+        self.num_ex = 100              # (Number of task sets)
 
         self.output_freq = 10          # (Output + Storage interval)
 

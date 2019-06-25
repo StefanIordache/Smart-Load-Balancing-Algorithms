@@ -22,7 +22,9 @@ Rails.application.routes.draw do
   get 'data_sets/data_set', to: 'data_sets#get_data_set'
   get 'data_sets/check_if_data_set_name_is_used', to: 'data_sets#check_if_data_set_name_is_used'
   post 'data_sets/delete_data_set', to: 'data_sets#delete_data_set'
+  post 'data_sets/create_new_data_set', to: 'data_sets#create_new_data_set'
 
-  post 'create_new_data_set', to: 'data_sets#create_new_data_set'
+  get 'training', to: 'training#index'
+  post 'training/start_training', to: 'training#start_training'
 
 end
