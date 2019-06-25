@@ -1,4 +1,55 @@
+<style>
+  #warning {
+    background: #c14328;
+    font-family: "Arial", sans-serif;
+  }
 
+  #warning .warningContent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -40px 0px 0px -170px;
+    display: block;
+    width: 380px;
+    height: 80px;
+    color: black;
+    text-shadow: -1px -1px #a63922;
+  }
+
+  #warning .warningContent span {
+    font-size: 81px;
+    font-weight: bold;
+    line-height: 93px;
+    display: block;
+    width: 20px;
+    float: left;
+    margin-right: 5px;
+  }
+
+  #warning .warningContent .wHeading {
+    font-size: 38px;
+    font-weight: bold;
+    line-height: 45px;
+    margin: 0px;
+    letter-spacing: -2px;
+  }
+
+  #warning .warningContent p {
+    font-size: 14px;
+    font-weight: regular;
+    line-height: 16px;
+    letter-spacing: 0px;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  #warning .warningContent p a {
+    font-size: 14px;
+    font-weight: regular;
+    color: #ff5559;
+    text-decoration: underline;
+  }
+</style>
 
 <div class="row justify-content-md-center">
   <div class="row col col-lg-12 col-md-12">
@@ -46,9 +97,25 @@
 
     </div>
 
+    <div class="col col-lg-1 col-md-1 vertical-separator" style="height: 100%; border-left: 1px dotted black; height: 80vh; transform: translate(50%);"></div>
 
+    <div class="col col-lg-7 col-md-7">
+      <label for="label-cluster">
+        <h4>
+          Results
+        </h4>
+      </label>
 
-    <div class="col col-lg-8 col-md-8"></div>
+      <div id="results">
+        <section id="warning">
+          <section class="warningContent">
+            <span>!</span>
+            <h5 class="wHeading">Zero results</h5>
+            <p>In order to display some <strong>results</strong> you should run a simulation!</p>
+          </section>
+        </section>
+      </div>
+    </div>
   </div>
 
 
@@ -84,7 +151,7 @@
             editorSimulation.set(response.data);
         });
 
-        $('#modalStatistics').modal({ show: false})
+        $('#modalStatistics').modal({show: false})
     });
 
     function callSimulation(url, clusterJson, simulationJson, selectedAlgorithm, selectedDataSet) {
@@ -130,7 +197,7 @@
         } else {
             const postUrl = "/simulate";
             startLoadingScreenAnimation();
-            
+
             callSimulation(postUrl, clusterJson, simulationJson, selectedAlgorithm, selectedDataSet).then(function (response) {
                 stopLoadingScreenAnimation();
 
@@ -165,26 +232,27 @@
 
     function triggerDataSetTooltipUpdate() {
         let value = $("#selector_data_set").val();
-        let getDataSetUrl = "/request/data_set";
+        let getDataSetUrl = "/data_sets/data_set";
 
         console.log(value);
 
         if (!isNaN(value)) {
 
-            axios.get(getDataSetUrl, { params: {
+            axios.get(getDataSetUrl, {
+                params: {
                     data_set_id: value
                 }
             }).then(function (response) {
 
                 if (tippyInstance == null) {
-                    tippyInstance = tippy('#data_set_tooltip', { content: response.data.raw_json, placement: 'right'});
+                    tippyInstance = tippy('#data_set_tooltip', {content: response.data.raw_json, placement: 'right'});
                 } else {
                     tippyInstance[0].setContent(response.data.raw_json);
                 }
             });
         } else {
             if (tippyInstance == null) {
-                tippyInstance = tippy('#data_set_tooltip', { content: '', placement: 'right'});
+                tippyInstance = tippy('#data_set_tooltip', {content: '', placement: 'right'});
             } else {
                 tippyInstance[0].setContent('');
             }

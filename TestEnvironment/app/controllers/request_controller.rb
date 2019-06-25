@@ -29,17 +29,5 @@ class RequestController < ApplicationController
     end
   end
 
-  def get_data_set
-
-    puts params
-    if params[:data_set_id].present?
-      data_set = DataSet.find(params[:data_set_id])
-
-      render json: data_set
-    else
-      render json: ""
-    end
-
-  end
 
 end

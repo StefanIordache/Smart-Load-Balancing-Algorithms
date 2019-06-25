@@ -5,7 +5,7 @@ import theano
 
 import parameters
 
-
+4
 class Env:
     def __init__(self, pa, nw_len_seqs=None, nw_size_seqs=None,
                  seed=42, render=False, repre='image', end='no_new_job'):

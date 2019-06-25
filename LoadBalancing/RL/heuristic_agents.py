@@ -43,6 +43,11 @@ def get_sjf_action(machine, job_slot):
         return act
 
 
+def get_fcfs_action(job_slot):
+    act = 1
+    return act
+
+
 def get_random_action(job_slot):
     num_act = len(job_slot.slot) + 1  # if no action available,
     act = np.random.randint(num_act)
