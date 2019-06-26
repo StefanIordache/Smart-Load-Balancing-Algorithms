@@ -5,7 +5,7 @@ class AlgorithmSimulatorController < ApplicationController
 
   def index
 
-    @algorithms = %w(FCFS SJF)
+    @algorithms = %w(FCFS SJF RL)
     @data_sets = DataSet.pluck(:name, :id)
 
   end
@@ -20,7 +20,8 @@ class AlgorithmSimulatorController < ApplicationController
     simulation = Simulation.new(algorithm: algorithm, cluster: info_cluster, params: info_simulation, data_set: data_set)
     simulation.save
 
-    simulation_completed_with_success = run_simulation_script simulation, info_cluster, info_simulation, algorithm, data_set_id
+    simulation_completed_with_success, average_completion_time, average_slowdown, cpu_usage, ram_usage =
+        run_simulation_script simulation, info_cluster, info_simulation, algorithm, data_set_id
 
     result = OpenStruct.new
 
@@ -29,6 +30,10 @@ class AlgorithmSimulatorController < ApplicationController
     else
       result.status = "successful"
       result.simulation = simulation
+      result.average_completion_time = average_completion_time
+      result.average_slowdown = average_slowdown
+      result.cpu_usage = cpu_usage
+      result.ram_usage = ram_usage
     end
 
     render json: result.to_json

@@ -16,6 +16,9 @@ def run_FCFS_on_data_set(cluster, simulation, data_set):
     total_slowdown = 0
     total_completion_time = 0
 
+    cpu_usage = [0 for i in range(cluster.cpu_units)]
+    ram_usage = [0 for i in range(cluster.ram_size)]
+
     for item in data_set:
         task_set = SortedList(key=lambda x: x['arrival'])
         task_set.update(item)
@@ -44,6 +47,13 @@ def run_FCFS_on_data_set(cluster, simulation, data_set):
 
             t = t + 1
 
+            cpu_usage_timestamp, ram_usage_timestamp = count_resources(t, tasks_scheduled)
+
+            for i in range(cpu_usage_timestamp):
+                cpu_usage[i] = cpu_usage[i] + 1
+            for i in range(ram_usage_timestamp):
+                ram_usage[i] = ram_usage[i] + 1
+
             if len(task_set) == 0 and len(tasks_waiting) == 0 and count_running_tasks(t, tasks_scheduled) == 0:
                 break
 
@@ -52,13 +62,16 @@ def run_FCFS_on_data_set(cluster, simulation, data_set):
             total_completion_time = total_completion_time + (task.finish - task.arrival)
             total_slowdown = total_slowdown + (task.finish - task.arrival) / task.execution
 
+    print(cpu_usage)
+    print(ram_usage)
+
     average_completion_time = round(total_completion_time / tasks_evaluated, 3)
     average_slowdown = round(total_slowdown / tasks_evaluated, 3)
 
     print(average_completion_time)
     print(average_slowdown)
 
-    return average_completion_time, average_slowdown
+    return average_completion_time, average_slowdown, cpu_usage, ram_usage
 
 
 def run_FCFS_on_task_set_from_data_set(cluster, simulation, data_set, task_set_index, with_grid_display):
@@ -121,6 +134,19 @@ def run_FCFS_on_task_set_from_data_set(cluster, simulation, data_set, task_set_i
     print(average_slowdown)
 
     return average_completion_time, average_slowdown
+
+
+def count_resources(t, tasks_scheduled):
+    cpu_total = 0
+    ram_total = 0
+
+    if len(tasks_scheduled) > 0:
+        for task in tasks_scheduled:
+            if task.start <= t <= task.finish:
+                cpu_total = cpu_total + task.cpu_units
+                ram_total = ram_total + task.ram_size
+
+    return cpu_total, ram_total
 
 
 def count_running_tasks(t, tasks_scheduled):

@@ -8,3 +8,4 @@ class Algorithm(Enum):
     OPTIMIZED_FCFS = 3
     MCT = 4
     SJF = 5
+    RL = 6

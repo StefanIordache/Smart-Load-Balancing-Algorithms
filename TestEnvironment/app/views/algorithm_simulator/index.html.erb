@@ -51,6 +51,15 @@
   }
 </style>
 
+
+<%= javascript_include_tag 'am4charts/core' %>
+<%= javascript_include_tag 'am4charts/charts' %>
+<%= javascript_include_tag 'am4charts/themes/material' %>
+<%= javascript_include_tag 'am4charts/themes/frozen' %>
+<script src="https://www.amcharts.com/lib/4/themes/dataviz.js"></script>
+<%= javascript_include_tag 'am4charts/themes/animated' %>
+
+
 <div class="row justify-content-md-center">
   <div class="row col col-lg-12 col-md-12">
     <h1 class="p-3 pb-5">Test Load Balancing Algorithms</h1>
@@ -100,13 +109,13 @@
     <div class="col col-lg-1 col-md-1 vertical-separator" style="height: 100%; border-left: 1px dotted black; height: 80vh; transform: translate(50%);"></div>
 
     <div class="col col-lg-7 col-md-7">
-      <label for="label-cluster">
+      <label for="label-results" hidden id="label-results">
         <h4>
           Results
         </h4>
       </label>
 
-      <div id="results">
+      <div id="zero-results">
         <section id="warning">
           <section class="warningContent">
             <span>!</span>
@@ -115,6 +124,21 @@
           </section>
         </section>
       </div>
+
+      <div id="results" hidden>
+        <div class="col col-md-12 col-lg-12">
+          <div id="chartdiv-completion-slowdown" style="height:330px;"></div>
+        </div>
+
+        <div class="col col-md-12 col-lg-12">
+          <div id="cpu-heatmap" style="height:530px;"></div>
+        </div>
+
+        <div class="col col-md-12 col-lg-12">
+          <div id="ram-heatmap" style="height:530px;"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -125,9 +149,6 @@
   <canvas id="c"></canvas>
   <div class="info">Click to add gravity point.</div>
 </div>
-
-
-<%= render 'statistics' %>
 
 
 <script>
@@ -151,8 +172,266 @@
             editorSimulation.set(response.data);
         });
 
-        $('#modalStatistics').modal({show: false})
     });
+
+    let chartCompletionSlowdown = null;
+    let cpuHeatmap = null;
+    let ramHeatmap = null;
+    
+    function drawChartCompletionSlowdown(data) {
+        
+        am4core.useTheme(am4themes_animated);
+
+        // Create chartCompletionSlowdown instance
+        chartCompletionSlowdown = am4core.create("chartdiv-completion-slowdown", am4charts.XYChart);
+
+        var title = chartCompletionSlowdown.titles.create();
+        title.text = "Completion Time & Slowdown Ratio";
+        title.fontSize = 18;
+        title.marginBottom = 25;
+
+        // Add data
+        chartCompletionSlowdown.data = [{
+            "x": "1",
+            "y": 1,
+            "text": "[bold]" + data.average_slowdown + "[/]\nAverage Slowdown",
+            "center": "bottom"
+        }, {
+            "x": "2",
+            "y": 1,
+            "text": "[bold]" + data.average_completion_time + "[/]\nAverage Completion Time",
+            "center": "top"
+        }];
+
+        // Create axes
+        var xAxis = chartCompletionSlowdown.xAxes.push(new am4charts.CategoryAxis());
+        xAxis.dataFields.category = "x";
+        xAxis.renderer.grid.template.disabled = true;
+        xAxis.renderer.labels.template.disabled = true;
+        xAxis.tooltip.disabled = true;
+
+        var yAxis = chartCompletionSlowdown.yAxes.push(new am4charts.ValueAxis());
+        yAxis.min = 0;
+        yAxis.max = 1.99;
+        yAxis.renderer.grid.template.disabled = true;
+        yAxis.renderer.labels.template.disabled = true;
+        yAxis.renderer.baseGrid.disabled = true;
+        yAxis.tooltip.disabled = true;
+
+
+        // Create series
+        var series = chartCompletionSlowdown.series.push(new am4charts.LineSeries());
+        series.dataFields.categoryX = "x";
+        series.dataFields.valueY = "y";
+        series.strokeWidth = 4;
+        series.sequencedInterpolation = true;
+
+        var bullet = series.bullets.push(new am4charts.CircleBullet());
+        bullet.setStateOnChildren = true;
+        bullet.states.create("hover");
+        bullet.circle.radius = 10;
+        bullet.circle.states.create("hover").properties.radius = 15;
+
+        var labelBullet = series.bullets.push(new am4charts.LabelBullet());
+        labelBullet.setStateOnChildren = true;
+        labelBullet.states.create("hover").properties.scale = 1.2;
+        labelBullet.label.text = "{text}";
+        labelBullet.label.maxWidth = 150;
+        labelBullet.label.wrap = true;
+        labelBullet.label.truncate = false;
+        labelBullet.label.textAlign = "middle";
+        labelBullet.label.paddingTop = 20;
+        labelBullet.label.paddingBottom = 20;
+        labelBullet.label.fill = am4core.color("#999");
+        labelBullet.label.states.create("hover").properties.fill = am4core.color("#000");
+
+        labelBullet.label.propertyFields.verticalCenter = "center";
+
+
+        chartCompletionSlowdown.cursor = new am4charts.XYCursor();
+        chartCompletionSlowdown.cursor.lineX.disabled = true;
+        chartCompletionSlowdown.cursor.lineY.disabled = true;
+    }
+
+    function drawCPUHeatmap(data) {
+        am4core.useTheme(am4themes_material);
+        var cpuHeatmap = am4core.create("cpu-heatmap", am4charts.XYChart);
+        cpuHeatmap.maskBullets = false;
+
+        var title = cpuHeatmap.titles.create();
+        title.text = "CPU Usage Heatmap";
+        title.fontSize = 18;
+        title.marginBottom = 25;
+
+        var xAxis = cpuHeatmap.xAxes.push(new am4charts.CategoryAxis());
+        var yAxis = cpuHeatmap.yAxes.push(new am4charts.CategoryAxis());
+
+        xAxis.dataFields.category = "column";
+        yAxis.dataFields.category = "row";
+
+        xAxis.renderer.grid.template.disabled = true;
+        xAxis.renderer.minGridDistance = 40;
+
+        yAxis.renderer.grid.template.disabled = true;
+        yAxis.renderer.inversed = true;
+        yAxis.renderer.minGridDistance = 30;
+
+        var series = cpuHeatmap.series.push(new am4charts.ColumnSeries());
+        series.dataFields.categoryX = "column";
+        series.dataFields.categoryY = "row";
+        series.dataFields.value = "value";
+        series.sequencedInterpolation = true;
+        series.defaultState.transitionDuration = 3000;
+
+        var bgColor = new am4core.InterfaceColorSet().getFor("background");
+
+        var columnTemplate = series.columns.template;
+        columnTemplate.strokeWidth = 1;
+        columnTemplate.strokeOpacity = 0.2;
+        columnTemplate.stroke = bgColor;
+        columnTemplate.tooltipText = "{id} -> {value.workingValue.formatNumber('#.')}";
+        columnTemplate.width = am4core.percent(100);
+        columnTemplate.height = am4core.percent(100);
+
+        series.heatRules.push({
+            target: columnTemplate,
+            property: "fill",
+            min: am4core.color(bgColor),
+            max: cpuHeatmap.colors.getIndex(0)
+        });
+
+        var heatLegend = cpuHeatmap.bottomAxesContainer.createChild(am4charts.HeatLegend);
+        heatLegend.width = am4core.percent(100);
+        heatLegend.series = series;
+        heatLegend.valueAxis.renderer.labels.template.fontSize = 9;
+        heatLegend.valueAxis.renderer.minGridDistance = 30;
+
+        series.columns.template.events.on("over", (event) => {
+            handleHover(event.target);
+        });
+
+        series.columns.template.events.on("hit", (event) => {
+            handleHover(event.target);
+        });
+
+        function handleHover(column) {
+            if (!isNaN(column.dataItem.value)) {
+                heatLegend.valueAxis.showTooltipAt(column.dataItem.value)
+            }
+            else {
+                heatLegend.valueAxis.hideTooltip();
+            }
+        }
+
+        series.columns.template.events.on("out", (event) => {
+            heatLegend.valueAxis.hideTooltip();
+        });
+
+        let heatmapData = [];
+        let cpuUsage = JSON.parse(data.cpu_usage);
+        for (var i = 0; i < cpuUsage.length; i++) {
+            var newObj = { "id": i+1, "row": Math.floor(i/5), "column": i%5, "value": cpuUsage[i] };
+            heatmapData.push(newObj);
+        }
+
+        cpuHeatmap.data = heatmapData;
+    }
+
+    function drawRAMHeatmap(data) {
+        am4core.useTheme(am4themes_frozen);
+        var ramHeatmap = am4core.create("ram-heatmap", am4charts.XYChart);
+        ramHeatmap.maskBullets = false;
+
+        var title = ramHeatmap.titles.create();
+        title.text = "RAM Usage Heatmap";
+        title.fontSize = 18;
+        title.marginBottom = 25;
+
+        var xAxis = ramHeatmap.xAxes.push(new am4charts.CategoryAxis());
+        var yAxis = ramHeatmap.yAxes.push(new am4charts.CategoryAxis());
+
+        xAxis.dataFields.category = "column";
+        yAxis.dataFields.category = "row";
+
+        xAxis.renderer.grid.template.disabled = true;
+        xAxis.renderer.minGridDistance = 40;
+
+        yAxis.renderer.grid.template.disabled = true;
+        yAxis.renderer.inversed = true;
+        yAxis.renderer.minGridDistance = 30;
+
+        var series = ramHeatmap.series.push(new am4charts.ColumnSeries());
+        series.dataFields.categoryX = "column";
+        series.dataFields.categoryY = "row";
+        series.dataFields.value = "value";
+        series.sequencedInterpolation = true;
+        series.defaultState.transitionDuration = 3000;
+
+        var bgColor = new am4core.InterfaceColorSet().getFor("background");
+
+        var columnTemplate = series.columns.template;
+        columnTemplate.strokeWidth = 1;
+        columnTemplate.strokeOpacity = 0.2;
+        columnTemplate.stroke = bgColor;
+        columnTemplate.tooltipText = "{id} -> {value.workingValue.formatNumber('#.')}";
+        columnTemplate.width = am4core.percent(100);
+        columnTemplate.height = am4core.percent(100);
+
+        series.heatRules.push({
+            target: columnTemplate,
+            property: "fill",
+            min: am4core.color(bgColor),
+            max: ramHeatmap.colors.getIndex(0)
+        });
+
+        var heatLegend = ramHeatmap.bottomAxesContainer.createChild(am4charts.HeatLegend);
+        heatLegend.width = am4core.percent(100);
+        heatLegend.series = series;
+        heatLegend.valueAxis.renderer.labels.template.fontSize = 9;
+        heatLegend.valueAxis.renderer.minGridDistance = 30;
+
+        series.columns.template.events.on("over", (event) => {
+            handleHover(event.target);
+        });
+
+        series.columns.template.events.on("hit", (event) => {
+            handleHover(event.target);
+        });
+
+        function handleHover(column) {
+            if (!isNaN(column.dataItem.value)) {
+                heatLegend.valueAxis.showTooltipAt(column.dataItem.value)
+            }
+            else {
+                heatLegend.valueAxis.hideTooltip();
+            }
+        }
+
+        series.columns.template.events.on("out", (event) => {
+            heatLegend.valueAxis.hideTooltip();
+        });
+
+        let heatmapData = [];
+        let ramUsage = JSON.parse(data.ram_usage);
+        for (var i = 0; i < ramUsage.length; i++) {
+            var newObj = { "id": i+1, "row": Math.floor(i/5), "column": i%5, "value": ramUsage[i] };
+            heatmapData.push(newObj);
+        }
+
+        ramHeatmap.data = heatmapData;
+    }
+
+    function displayResults(data) {
+        
+        $('#zero-results').hide();
+        $('#results').removeAttr('hidden');
+        $('#label-results').removeAttr('hidden');
+        
+        drawChartCompletionSlowdown(data);
+        drawCPUHeatmap(data);
+        drawRAMHeatmap(data);
+
+    }
 
     function callSimulation(url, clusterJson, simulationJson, selectedAlgorithm, selectedDataSet) {
         return axios
@@ -205,11 +484,13 @@
 
             callSimulation(postUrl, clusterJson, simulationJson, selectedAlgorithm, selectedDataSet).then(function (response) {
                 stopLoadingScreenAnimation();
+                console.log(response);
 
-                //popResultsModal(response.data.table.simulation)
+                displayResults(response.data.table);
 
             }).catch(function (response) {
                 stopLoadingScreenAnimation();
+                console.log(response.data);
                 console.log("error");
                 swal({
                     icon: "error",
@@ -265,6 +546,8 @@
     }
 
 </script>
+
+
 
 
 <script src="https://unpkg.com/tippy.js@4"></script>

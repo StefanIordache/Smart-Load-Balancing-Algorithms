@@ -68,7 +68,16 @@ if __name__ == "__main__":
 
         print(len(data_set))
 
-        start_simulation(cluster, simulation, data_set)
+        average_completion_time, average_slowdown, cpu_usage, ram_usage = start_simulation(cluster, simulation, data_set)
+
+        time.sleep(0.1)
+        sock.sendall(str(average_completion_time).encode())
+        time.sleep(0.1)
+        sock.sendall(str(average_slowdown).encode())
+        time.sleep(0.1)
+        sock.sendall(json.dumps(cpu_usage).encode())
+        time.sleep(0.1)
+        sock.sendall(json.dumps(ram_usage).encode())
 
         time.sleep(0.1)
         sock.sendall("FINISHED".encode())

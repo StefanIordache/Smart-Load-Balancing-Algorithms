@@ -8,6 +8,10 @@ module AlgorithmSimulatorHelper
 
   def run_simulation_script(simulation, info_cluster, info_simulation, algorithm, data_set_id)
     simulation_completed_with_success = false
+    average_completion_time = -1
+    average_slowdown = -1
+    cpu_usage = nil
+    ram_usage = nil
 
     begin
       pid = Process.spawn "bash " + File.expand_path('../Scripts/simulator.sh')
@@ -42,6 +46,18 @@ module AlgorithmSimulatorHelper
         client.puts String(data_set_id)
         client.flush
 
+        average_completion_time = client.recv(1024).to_f
+        puts average_completion_time
+
+        average_slowdown = client.recv(1024).to_f
+        puts average_slowdown
+
+        cpu_usage = client.recv(1024)
+        puts cpu_usage
+
+        ram_usage = client.recv(1024)
+        puts ram_usage
+
         finished = client.recv(1024)
         puts finished
 
@@ -70,7 +86,7 @@ module AlgorithmSimulatorHelper
     rescue
     end
 
-    return simulation_completed_with_success
+    return simulation_completed_with_success, average_completion_time, average_slowdown, cpu_usage, ram_usage
 
   end
 

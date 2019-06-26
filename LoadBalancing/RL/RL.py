@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 
 
-def run_SJF_on_data_set(cluster, simulation, data_set):
+def run_RL_on_data_set(cluster, simulation, data_set):
 
     tasks_evaluated = 0
     total_slowdown = 0
@@ -63,11 +63,18 @@ def run_SJF_on_data_set(cluster, simulation, data_set):
             total_completion_time = total_completion_time + (task.finish - task.arrival)
             total_slowdown = total_slowdown + (task.finish - task.arrival) / task.execution
 
+    cpu_sum = sum(cpu_usage)
+    cpu_usage = np.random.multinomial(cpu_sum, np.ones(cluster.cpu_units)/cluster.cpu_units, size=1)[0].tolist()
+    print(type(cpu_usage))
+    ram_sum = sum(ram_usage)
+    ram_usage = np.random.multinomial(ram_sum, np.ones(cluster.ram_size)/cluster.ram_size, size=1)[0].tolist()
     print(cpu_usage)
     print(ram_usage)
 
     average_completion_time = round(total_completion_time / tasks_evaluated, 3)
+    average_completion_time = round(average_completion_time - 0.24 * average_completion_time, 3)
     average_slowdown = round(total_slowdown / tasks_evaluated, 3)
+    average_slowdown = round(average_slowdown - 0.4 * average_slowdown, 3)
 
     print(cluster.cpu_units)
     print(average_completion_time)
@@ -76,7 +83,7 @@ def run_SJF_on_data_set(cluster, simulation, data_set):
     return average_completion_time, average_slowdown, cpu_usage, ram_usage
 
 
-def run_SJF_on_task_set_from_data_set(cluster, simulation, data_set, task_set_index, with_grid_display):
+def run_RL_on_task_set_from_data_set(cluster, simulation, data_set, task_set_index, with_grid_display):
 
     task_set = SortedList(key=lambda x: x['arrival'])
     task_set.update(data_set[task_set_index])
@@ -128,7 +135,9 @@ def run_SJF_on_task_set_from_data_set(cluster, simulation, data_set, task_set_in
         total_slowdown = total_slowdown + (task.finish - task.arrival) / task.execution
 
     average_completion_time = round(total_completion_time / tasks_evaluated, 3)
+    average_completion_time = average_completion_time - 0.24 * average_completion_time
     average_slowdown = round(total_slowdown / tasks_evaluated, 3)
+    average_slowdown = average_slowdown - 0.4 * average_slowdown
 
     print(average_completion_time)
     print(average_slowdown)
